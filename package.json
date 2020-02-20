@@ -1,0 +1,107 @@
+{
+  "name": "coc-groovy",
+  "version": "0.1.0",
+  "description": "Groovy langauage extension for coc.nvim",
+  "main": "lib/index.js",
+  "publisher": "dansomething",
+  "engines": {
+    "coc": ">=0.0.66"
+  },
+  "keywords": [
+    "coc.nvim",
+    "languageserver"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dansomething/coc-groovy"
+  },
+  "bugs": "https://github.com/dansomething/coc-groovy/issues",
+  "scripts": {
+    "clean": "rimraf lib",
+    "build": "webpack",
+    "prepare": "npx npm-run-all clean build"
+  },
+  "activationEvents": [
+    "onLanguage:groovy"
+  ],
+  "contributes": {
+    "rootPatterns": [
+      {
+        "filetype": "groovy",
+        "patterns": [
+          "package.json",
+          ".project",
+          ".classpath",
+          "build.gradle"
+        ]
+      }
+    ],
+    "snippets": [
+      {
+        "language": "groovy",
+        "path": "./snippets/groovy.json"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "Groovy configuration",
+      "properties": {
+        "groovy.java.home": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null,
+          "description": "Specifies the folder path to the JDK (8 or more recent) used to launch the Groovy Language Server.\nOn Windows, backslashes must be escaped, i.e.\n\"groovy.home\":\"C:\\\\Program Files\\\\Java\\\\jdk1.8.0_161\"",
+          "scope": "window"
+        },
+        "groovy.ls.vmargs": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": "-noverify -Xmx1G -XX:+UseG1GC -XX:+UseStringDeduplication",
+          "description": "Specifies extra VM arguments used to launch the Groovy Language Server. Eg. use `-noverify -Xmx1G  -XX:+UseG1GC -XX:+UseStringDeduplication` to bypass class verification, increase the heap size to 1GB and enable String deduplication with the G1 Garbage collector",
+          "scope": "window"
+        },
+        "groovy.ls.home": {
+          "type": "string",
+          "default": null,
+          "description": "Absolute path to the Groovy Language Server home. The bundled language server is used by default.",
+          "scope": "window"
+        }
+      }
+    },
+    "commands": []
+  },
+  "license": "EPL-1.0",
+  "devDependencies": {
+    "@chemzqm/tsconfig": "^0.0.3",
+    "@chemzqm/tslint-config": "^1.0.18",
+    "@types/glob": "7.1.1",
+    "@types/got": "^9.6.9",
+    "@types/mkdirp": "^0.5.2",
+    "@types/mocha": "^7.0.1",
+    "@types/node": "^13.7.0",
+    "@types/tunnel": "^0.0.1",
+    "coc.nvim": "0.0.74",
+    "compressing": "^1.5.0",
+    "decompress": "^4.2.0",
+    "expand-home-dir": "^0.0.3",
+    "find-java-home": "1.1.0",
+    "glob": "^7.1.6",
+    "got": "^10.5.2",
+    "mkdirp": "^1.0.3",
+    "mocha": "^7.0.1",
+    "path-exists": "^4.0.0",
+    "rimraf": "^3.0.1",
+    "ts-loader": "^6.2.1",
+    "tslint": "^6.0.0",
+    "tunnel": "^0.0.6",
+    "typescript": "3.7.5",
+    "vscode-languageserver-protocol": "^3.15.2",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10"
+  },
+  "dependencies": {}
+}
