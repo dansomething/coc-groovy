@@ -37,6 +37,7 @@ async function startLanguageServer(context: ExtensionContext, requirements: Requ
     serverOptions,
     clientOptions
   )
+  languageClient.registerProposedFeatures()
 
   const progressItem = workspace.createStatusBarItem(0, { progress: true })
   progressItem.text = `${NAME} starting`
