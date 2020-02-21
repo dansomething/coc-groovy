@@ -1,7 +1,10 @@
 # coc-groovy
 
-An experimental [extension for coc.nvim](https://github.com/neoclide/coc.nvim/wiki/Using-coc-extensions) to enable
+An [extension for coc.nvim](https://github.com/neoclide/coc.nvim/wiki/Using-coc-extensions) to enable
 [Groovy language server](https://github.com/prominic/groovy-language-server) support.
+
+#### Disclaimer
+*Note, this extension is experimental and still under development so things may be broken. ¯\\\_(ツ)\_/¯*
 
 ## Quick Start
 
