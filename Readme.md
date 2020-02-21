@@ -6,6 +6,8 @@ An [extension for coc.nvim](https://github.com/neoclide/coc.nvim/wiki/Using-coc-
 #### Disclaimer
 *Note, this extension is experimental and still under development so things may be broken. ¯\\\_(ツ)\_/¯*
 
+*This is also why it is not published to NPM.*
+
 ## Quick Start
 
 1. Download and install a recent Java Development Kit (latest Java 8 is the minimum requirement).
