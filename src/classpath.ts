@@ -64,7 +64,7 @@ async function findMvnCmd(): Promise<string | null> {
     if (mvnVersion.match(/Apache Maven \d\.\d+\.\d+/)) {
       return mvn
     }
-  } catch (e) {
+  } catch (_e) {
     // noop
   }
 

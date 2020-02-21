@@ -18,7 +18,7 @@ export interface RequirementsData {
   java_version: number
 }
 
-export interface ErrorData {
+interface ErrorData {
   message: string
   label: string
   openUrl: Uri
@@ -97,7 +97,7 @@ function checkJavaVersion(java_home: string): Promise<number> {
   })
 }
 
-export function parseMajorVersion(content: string): number {
+function parseMajorVersion(content: string): number {
   let regexp = /version "(.*)"/g
   let match = regexp.exec(content)
   if (!match) {

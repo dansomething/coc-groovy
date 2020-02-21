@@ -1,24 +1,15 @@
 import { NotificationType } from 'vscode-languageserver-protocol'
 
-export interface StatusReport {
-  message: string
-  type: string
+export interface Initialized {
 }
 
-export interface ProgressReport {
-  id: string
-  task: string
-  subTask: string
-  status: string
-  workDone: number
-  totalWork: number
-  complete: boolean
+export namespace InitializedNotification {
+  export const type = new NotificationType<Initialized, never>('workspace/didChangeConfiguration')
+}
+
+export interface DidChangeConfiguration {
 }
 
 export namespace ProgressReportNotification {
-  export const type = new NotificationType<ProgressReport, never>('language/progressReport')
-}
-
-export namespace StatusNotification {
-  export const type = new NotificationType<StatusReport, never>('language/status')
+  export const type = new NotificationType<DidChangeConfiguration, never>('workspace/didChangeConfiguration')
 }

@@ -1,11 +1,27 @@
-import { Executable } from 'coc.nvim'
+import { Executable, ExtensionContext, workspace } from 'coc.nvim'
 import * as glob from 'glob'
 import * as path from 'path'
-import { PLUGIN_NAME } from './constants'
+import { GROOVY, PLUGIN_NAME } from './constants'
 import { RequirementsData, ServerConfiguration } from './requirements'
 import { DEBUG, JAVA_FILENAME } from './system'
 
-export function prepareExecutable(requirements: RequirementsData, config: ServerConfiguration): Executable {
+export async function getServerOptions(context: ExtensionContext, requirements: RequirementsData): Promise<Executable> {
+  const config = workspace.getConfiguration(GROOVY)
+  const root = config.get<string>('ls.home', defaultServerHome(context))
+  const encoding = await workspace.nvim.eval('&fileencoding') as string
+  const serverConfig: ServerConfiguration = {
+    root,
+    encoding,
+    vmargs: config.get<string>('ls.vmargs', '')
+  }
+  return prepareExecutable(requirements, serverConfig)
+}
+
+function defaultServerHome(context: ExtensionContext): string {
+  return path.resolve(context.extensionPath, 'server')
+}
+
+function prepareExecutable(requirements: RequirementsData, config: ServerConfiguration): Executable {
   const executable: Executable = Object.create(null)
   const options = Object.create(null)
   options.env = process.env
@@ -45,8 +61,7 @@ function prepareParams(config: ServerConfiguration): string[] {
   return params
 }
 
-// exported for tests
-export function parseVmArgs(params: any[], vmargsLine: string): void {
+function parseVmArgs(params: any[], vmargsLine: string): void {
   if (!vmargsLine) {
     return
   }
