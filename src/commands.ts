@@ -10,5 +10,5 @@ export namespace Commands {
   /**
    * Update project configuration
    */
-  export const CONFIGURATION_UPDATE = 'groovy.project.configUpdate'
+  export const CONFIGURATION_UPDATE = 'groovy.project.config.update'
 }
