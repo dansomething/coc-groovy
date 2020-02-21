@@ -1,13 +1,9 @@
 import { Executable } from 'coc.nvim'
 import * as glob from 'glob'
 import * as path from 'path'
+import { PLUGIN_NAME } from './constants'
 import { RequirementsData, ServerConfiguration } from './requirements'
-
-declare var v8debug: any
-const DEBUG = (typeof v8debug === 'object') || startedInDebugMode()
-
-const isWindows = process.platform.indexOf('win') === 0
-const JAVA_FILENAME = 'java' + (isWindows ? '.exe' : '')
+import { DEBUG, JAVA_FILENAME } from './system'
 
 export function prepareExecutable(requirements: RequirementsData, config: ServerConfiguration): Executable {
   const executable: Executable = Object.create(null)
@@ -18,7 +14,7 @@ export function prepareExecutable(requirements: RequirementsData, config: Server
   executable.command = path.resolve(requirements.java_home, 'bin', JAVA_FILENAME)
   executable.args = prepareParams(config)
   // tslint:disable-next-line: no-console
-  console.log('Starting Java server with: ' + executable.command + ' ' + executable.args.join(' '))
+  console.log(`Starting ${PLUGIN_NAME} with: ` + executable.command + ' ' + executable.args.join(' '))
   return executable
 }
 
@@ -47,14 +43,6 @@ function prepareParams(config: ServerConfiguration): string[] {
   }
 
   return params
-}
-
-function startedInDebugMode(): boolean {
-  const args = process.execArgv
-  if (args) {
-    return args.some((arg: string) => /^--debug=?/.test(arg) || /^--debug-brk=?/.test(arg) || /^--inspect-brk=?/.test(arg))
-  }
-  return false
 }
 
 // exported for tests

@@ -1,18 +1,25 @@
-import { commands, Executable, ExtensionContext, LanguageClient, LanguageClientOptions, workspace } from "coc.nvim"
+import { commands, Executable, ExtensionContext, LanguageClient, LanguageClientOptions, workspace } from 'coc.nvim'
 import * as path from 'path'
+import { DidChangeConfigurationNotification } from 'vscode-languageserver-protocol'
+import { getClasspath } from './classpath'
 import { Commands } from './commands'
-import { prepareExecutable } from "./groovyServerStarter"
-import { RequirementsData, resolveRequirements, ServerConfiguration } from "./requirements"
+import { prepareExecutable } from './serverStarter'
+import { RequirementsData, resolveRequirements, ServerConfiguration } from './requirements'
+import { isGroovyFile } from './system'
 
 const LANG = 'groovy'
-const NAME = 'Groovy Language Server'
+const PLUGIN_NAME = 'Groovy Language Server [GLS]'
+const PLUGIN_NAME_SHORT = '[GLS]'
 let languageClient: LanguageClient
 
 export async function activate(context: ExtensionContext): Promise<void> {
   let requirements: RequirementsData
   try {
     requirements = await resolveRequirements()
-    workspace.showMessage(`Using java from ${requirements.java_home}, version: ${requirements.java_version}`, 'more')
+    workspace.showMessage(
+      `${PLUGIN_NAME_SHORT} using Java from ${requirements.java_home}, version: ${requirements.java_version}`,
+      'more'
+    )
     return startLanguageServer(context, requirements)
   } catch (e) {
     const res = await workspace.showQuickpick(['Yes', 'No'], `${e.message}, ${e.label}?`)
@@ -33,69 +40,22 @@ async function startLanguageServer(context: ExtensionContext, requirements: Requ
   const serverOptions = await getServerOptions(context, requirements)
   languageClient = new LanguageClient(
     LANG,
-    NAME,
+    PLUGIN_NAME,
     serverOptions,
     clientOptions
   )
   languageClient.registerProposedFeatures()
 
-  const progressItem = workspace.createStatusBarItem(0, { progress: true })
-  progressItem.text = `${NAME} starting`
-  progressItem.show()
-
   languageClient.onReady().then(() => {
-    languageClient.onNotification('language/progressReport', onProgressReport(progressItem, requirements))
-    languageClient.onNotification('language/status', onStatus(progressItem))
+    workspace.showMessage(`${PLUGIN_NAME_SHORT} started!`)
+    updateConfig()
+    registerCommands(context)
   }, e => {
     context.logger.error(e.message)
   })
 
-  workspace.showMessage(`${NAME} starting`)
+  workspace.showMessage(`${PLUGIN_NAME} starting...`)
   languageClient.start()
-}
-
-function onProgressReport(progressItem: any, requirements: RequirementsData): (report: any) => any {
-  let started = false
-  const statusItem = workspace.createStatusBarItem(0)
-  statusItem.text = ''
-
-  return report => {
-    switch (report.type) {
-      case 'Started':
-        started = true
-      progressItem.isProgress = false
-      statusItem.text = NAME
-      statusItem.show()
-      workspace.showMessage(`${NAME} started`)
-      // TODO How are these properties used? Should apiVersion be set?
-      languageClient.info(`${NAME} Started`, { javaRequirement: requirements, apiVersion: '0.2' })
-      break
-      case 'Error':
-        progressItem.isProgress = false
-      statusItem.hide()
-      workspace.showMessage(`${NAME} error [${report.message}]`, 'error')
-      break
-      case 'Starting':
-        if (!started) {
-        progressItem.text = report.message
-        progressItem.show()
-      }
-      break
-      case 'Message':
-        workspace.showMessage(report.message)
-      break
-    }
-  }
-}
-
-function onStatus(progressItem: any): (progress: any) => any {
-  return progress => {
-    progressItem.show()
-    progressItem.text = progress.status
-    if (progress.complete) {
-      setTimeout(() => { progressItem.hide() }, 500)
-    }
-  }
 }
 
 function getClientOptions(): LanguageClientOptions {
@@ -126,4 +86,33 @@ async function getServerOptions(context: ExtensionContext, requirements: Require
 
 function defaultServerHome(context: ExtensionContext): string {
   return path.resolve(context.extensionPath, 'server')
+}
+
+function registerCommands(context: ExtensionContext): void {
+  context.subscriptions.push(commands.registerCommand(Commands.CONFIGURATION_UPDATE, updateConfig))
+}
+
+async function updateConfig(): Promise<void> {
+  const filepath = await workspace.nvim.call('expand', '%:p') as string
+  if (!isGroovyFile(filepath)) {
+    workspace.showMessage('Open a Groovy file to update project config.', 'warning')
+    return null
+  }
+
+  await updateClasspath(filepath)
+  workspace.showMessage(`${PLUGIN_NAME_SHORT} project config updated.`)
+}
+
+async function updateClasspath(filepath: string): Promise<void> {
+  const config = workspace.getConfiguration(LANG)
+  let classpath = config.get<string[]>('project.referencedLibraries', [])
+  const projectClasspath = await getClasspath(filepath)
+  if (projectClasspath) {
+    classpath = classpath.concat(projectClasspath)
+  }
+  // The Groovy language server only loads the classpath from a config change notification.
+  // Ideally this would also be loaded with initializationOptions too.
+  languageClient.sendNotification(DidChangeConfigurationNotification.type, {
+    settings: { groovy: { classpath } }
+  })
 }

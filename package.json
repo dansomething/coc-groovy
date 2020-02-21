@@ -70,6 +70,14 @@
           "description": "Absolute path to the Groovy Language Server home. The bundled language server is used by default.",
           "scope": "window"
         },
+        "groovy.project.referencedLibraries": {
+          "type": [
+            "array"
+          ],
+          "default": [],
+          "description": "Configure paths for referencing libraries in a Groovy project.",
+          "scope": "window"
+        },
         "groovy.trace.server": {
           "type": "string",
           "enum": [
@@ -95,11 +103,12 @@
     "@types/mocha": "^7.0.1",
     "@types/node": "^13.7.0",
     "@types/tunnel": "^0.0.1",
-    "coc.nvim": "0.0.74",
+    "coc.nvim": "0.0.68",
     "compressing": "^1.5.0",
     "decompress": "^4.2.0",
     "expand-home-dir": "^0.0.3",
     "find-java-home": "1.1.0",
+    "find-up": "^4.1.0",
     "glob": "^7.1.6",
     "got": "^10.5.2",
     "mkdirp": "^1.0.3",
@@ -110,9 +119,8 @@
     "tslint": "^6.0.0",
     "tunnel": "^0.0.6",
     "typescript": "3.7.5",
-    "vscode-languageserver-protocol": "^3.15.2",
+    "vscode-languageserver-protocol": "^3.15.0-next.1",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10"
-  },
-  "dependencies": {}
+  }
 }

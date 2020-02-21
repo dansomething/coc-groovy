@@ -1,16 +1,11 @@
-'use strict'
-
-import { workspace, Uri } from 'coc.nvim'
 import cp from 'child_process'
+import { Uri, workspace } from 'coc.nvim'
+import expandHomeDir from 'expand-home-dir'
+import findJavaHome from 'find-java-home'
 import fs from 'fs'
 import path from 'path'
 import pathExists from 'path-exists'
-import expandHomeDir from 'expand-home-dir'
-import findJavaHome from 'find-java-home'
-
-const isWindows = process.platform.indexOf('win') === 0
-const JAVAC_FILENAME = 'javac' + (isWindows ? '.exe' : '')
-const JAVA_FILENAME = 'java' + (isWindows ? '.exe' : '')
+import { JAVAC_FILENAME, JAVA_FILENAME } from './system'
 
 export interface ServerConfiguration {
   root: string
@@ -124,7 +119,7 @@ export function parseMajorVersion(content: string): number {
   return javaVersion
 }
 
-function openJDKDownload(reject, cause): void {
+function openJDKDownload(reject: (reason?: any) => void, cause: string): void {
   let jdkUrl = 'https://developers.redhat.com/products/openjdk/download/?sc_cid=701f2000000RWTnAAO'
   if (process.platform === 'darwin') {
     jdkUrl = 'http://www.oracle.com/technetwork/java/javase/downloads/index.html'
