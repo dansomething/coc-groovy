@@ -44,7 +44,7 @@ async function buildClasspath(cwd: string): Promise<string[]> {
   }
 
   const fileContent = fs.readFileSync(outputFilePath, 'utf8')
-  // workspace.deleteFile(outputFilePath)
+  workspace.deleteFile(outputFilePath)
   if (!fileContent) {
     return null
   }
