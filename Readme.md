@@ -19,9 +19,12 @@ An [extension for coc.nvim](https://github.com/neoclide/coc.nvim/wiki/Using-coc-
 
 ## Features
 
-- Code completion
+- Code Completion
+- Find References
+- Go to Definition
+- Highlights
 - Refactor Rename
-- Type search
+- Signature Hover
 
 ## Available commands
 
