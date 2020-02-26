@@ -6,7 +6,6 @@ import { Commands } from './commands'
 import { GROOVY, PLUGIN_NAME, PLUGIN_NAME_SHORT } from './constants'
 import { RequirementsData, resolveRequirements } from './requirements'
 import { getServerOptions } from './server'
-import { isGroovyFile } from './system'
 
 let languageClient: LanguageClient
 let languageClientDisposable: Disposable
@@ -64,11 +63,6 @@ function registerCommands(context: ExtensionContext): void {
 
 async function updateProjectConfig(): Promise<void> {
   const filepath = await workspace.nvim.call('expand', '%:p') as string
-  if (!isGroovyFile(filepath)) {
-    workspace.showMessage('Open a Groovy file to update project config.', 'warning')
-    return null
-  }
-
   await updateClasspath(filepath)
   workspace.showMessage(`${PLUGIN_NAME_SHORT} project config updated.`)
 }

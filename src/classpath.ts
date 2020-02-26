@@ -3,14 +3,9 @@ import findUp from 'find-up'
 import fs from 'fs'
 import * as path from 'path'
 import { PLUGIN_NAME_SHORT } from './constants'
-import { isGroovyFile, IS_WINDOWS } from './system'
+import { IS_WINDOWS } from './system'
 
 export async function getClasspath(filepath: string): Promise<string[]> {
-  if (!isGroovyFile(filepath)) {
-    workspace.showMessage('Open a Groovy file to update project config.', 'warning')
-    return null
-  }
-
   const pom = await findNearestPom(filepath)
   if (!pom) {
     return null
@@ -27,19 +22,22 @@ async function buildClasspath(cwd: string): Promise<string[]> {
     return null
   }
 
-  const outputFile = '.classpath.txt'
+  // Specifying the full path results in only one file being created for a multi-module project.
+  const outputFilePath = path.resolve(cwd, '.classpath.txt')
   const separator = ':'
 
-  const result = await workspace.runCommand(
-    `${mvnCmd} dependency:build-classpath -Dmdep.pathSeparator='${separator}' -Dmdep.outputFile=${outputFile}`,
-    cwd
-  )
-  if (!result.includes('BUILD SUCCESS')) {
+  let result: string
+  try {
+    result = await workspace.runCommand(
+      `${mvnCmd} dependency:build-classpath -Dmdep.pathSeparator='${separator}' -Dmdep.outputFile=${outputFilePath}`,
+      cwd
+    )
+  } catch(e) {
+    // The maven operation failed for some reason so there's nothing we can do.
     return null
   }
 
-  const outputFilePath = await findUp(outputFile, { cwd })
-  if (!outputFilePath) {
+  if (!result?.includes('BUILD SUCCESS')) {
     return null
   }
 
