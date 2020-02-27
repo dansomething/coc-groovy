@@ -5,6 +5,7 @@ import findJavaHome from 'find-java-home'
 import fs from 'fs'
 import path from 'path'
 import pathExists from 'path-exists'
+import { Settings } from './settings'
 import { JAVAC_FILENAME, JAVA_FILENAME } from './system'
 
 export interface ServerConfiguration {
@@ -81,7 +82,7 @@ function checkJavaRuntime(): Promise<string> {
 
 function readJavaConfig(): string {
   const config = workspace.getConfiguration('groovy')
-  return config.get<string>('java.home', null)
+  return config.get<string>(Settings.JAVA_HOME, null)
 }
 
 function checkJavaVersion(java_home: string): Promise<number> {

@@ -68,12 +68,7 @@ async function updateProjectConfig(): Promise<void> {
 }
 
 async function updateClasspath(filepath: string): Promise<void> {
-  const config = workspace.getConfiguration(GROOVY)
-  let classpath = config.get<string[]>('project.referencedLibraries', [])
-  const projectClasspath = await getClasspath(filepath)
-  if (projectClasspath) {
-    classpath = classpath.concat(projectClasspath)
-  }
+  const classpath = await getClasspath(filepath)
   // The Groovy language server only loads the classpath from a config change notification.
   // Ideally this would also be loaded with initializationOptions too.
   languageClient.sendNotification(DidChangeConfigurationNotification.type, {

@@ -2,10 +2,21 @@ import { workspace } from 'coc.nvim'
 import findUp from 'find-up'
 import fs from 'fs'
 import * as path from 'path'
-import { PLUGIN_NAME_SHORT } from './constants'
+import { GROOVY, PLUGIN_NAME_SHORT } from './constants'
+import { Settings } from './settings'
 import { IS_WINDOWS } from './system'
 
 export async function getClasspath(filepath: string): Promise<string[]> {
+  const config = workspace.getConfiguration(GROOVY)
+  let classpath = config.get<string[]>(Settings.REFERENCED_LIBRARIES, [])
+  const projectClasspath = await getMvnClasspath(filepath)
+  if (projectClasspath) {
+    classpath = classpath.concat(projectClasspath)
+  }
+  return classpath
+}
+
+export async function getMvnClasspath(filepath: string): Promise<string[]> {
   const pom = await findNearestPom(filepath)
   if (!pom) {
     return null

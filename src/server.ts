@@ -3,16 +3,17 @@ import * as glob from 'glob'
 import * as path from 'path'
 import { GROOVY, PLUGIN_NAME } from './constants'
 import { RequirementsData, ServerConfiguration } from './requirements'
+import { Settings } from './settings'
 import { DEBUG, JAVA_FILENAME } from './system'
 
 export async function getServerOptions(context: ExtensionContext, requirements: RequirementsData): Promise<Executable> {
   const config = workspace.getConfiguration(GROOVY)
-  const root = config.get<string>('ls.home', defaultServerHome(context))
+  const root = config.get<string>(Settings.LS_HOME, defaultServerHome(context))
   const encoding = await workspace.nvim.eval('&fileencoding') as string
   const serverConfig: ServerConfiguration = {
     root,
     encoding,
-    vmargs: config.get<string>('ls.vmargs', '')
+    vmargs: config.get<string>(Settings.LS_VMARGS, '')
   }
   return prepareExecutable(requirements, serverConfig)
 }
