@@ -52,4 +52,4 @@ The path to the Java Development Kit is searched in the following order:
 
 ## License
 
-EPL 1.0, See [LICENSE](LICENSE) for more information.
+EPL 2.0, See [LICENSE](LICENSE) for more information.
