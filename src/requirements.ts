@@ -27,11 +27,11 @@ interface ErrorData {
 }
 
 /**
- * Resolves the requirements needed to run the extension.
- * Returns a promise that will resolve to a RequirementsData if
- * all requirements are resolved, it will reject with ErrorData if
- * if any of the requirements fails to resolve.
+ * Resolves the requirements needed to run this extension.
  *
+ * Returns a promise that will resolve to a RequirementsData if all
+ * requirements are resolved. Otherwise, it will reject with ErrorData if
+ * any of the requirements fail to be met.
  */
 export async function resolveRequirements(): Promise<RequirementsData> {
   let java_home = await checkJavaRuntime()
@@ -42,7 +42,7 @@ export async function resolveRequirements(): Promise<RequirementsData> {
 function checkJavaRuntime(): Promise<string> {
   return new Promise((resolve, reject) => {
     let source: string
-    let javaHome: string = readJavaConfig()
+    let javaHome: string = readJavaHomeConfig()
     if (javaHome) {
       source = 'The groovy.java.home variable defined in COC settings'
     } else {
@@ -80,7 +80,7 @@ function checkJavaRuntime(): Promise<string> {
   })
 }
 
-function readJavaConfig(): string {
+function readJavaHomeConfig(): string {
   const config = workspace.getConfiguration('groovy')
   return config.get<string>(Settings.JAVA_HOME, null)
 }

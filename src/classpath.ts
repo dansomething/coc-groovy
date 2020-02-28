@@ -6,12 +6,23 @@ import { GROOVY, PLUGIN_NAME_SHORT } from './constants'
 import { Settings } from './settings'
 import { IS_WINDOWS } from './system'
 
-export async function getClasspath(filepath: string): Promise<string[]> {
+// Cache the Maven generated classpath to improve initial load time.
+let mvnClasspath: string[] | undefined
+
+export async function getClasspath(filepath: string, forceUpdate?: boolean): Promise<string[]> {
+  if (forceUpdate) {
+    mvnClasspath = undefined
+    workspace.showMessage("Resetting loaded libraries.")
+  }
+
+  if (!mvnClasspath) {
+    mvnClasspath = await getMvnClasspath(filepath)
+  }
+
   const config = workspace.getConfiguration(GROOVY)
   let classpath = config.get<string[]>(Settings.REFERENCED_LIBRARIES, [])
-  const projectClasspath = await getMvnClasspath(filepath)
-  if (projectClasspath) {
-    classpath = classpath.concat(projectClasspath)
+  if (mvnClasspath) {
+    classpath = classpath.concat(mvnClasspath)
   }
   return classpath
 }
@@ -58,7 +69,7 @@ async function buildClasspath(cwd: string): Promise<string[]> {
     return null
   }
 
-  return fileContent.split(separator)
+  return fileContent.split(separator).sort()
 }
 
 async function findNearestPom(filepath: string): Promise<string | null> {
