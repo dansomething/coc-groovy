@@ -2,7 +2,7 @@ import { workspace } from 'coc.nvim'
 import findUp from 'find-up'
 import fs from 'fs'
 import * as path from 'path'
-import { GROOVY, PLUGIN_NAME_SHORT } from './constants'
+import { GROOVY, PLUGIN_NAME, PLUGIN_NAME_SHORT } from './constants'
 import { Settings } from './settings'
 import { IS_WINDOWS } from './system'
 
@@ -47,15 +47,14 @@ async function buildClasspath(cwd: string): Promise<string[]> {
   // Specifying the full path results in only one file being created for a multi-module project.
   const outputFilePath = path.resolve(cwd, '.classpath.txt')
   const separator = ':'
+  const cmd = `${mvnCmd} dependency:build-classpath -Dmdep.pathSeparator='${separator}' -Dmdep.outputFile=${outputFilePath}`
 
   let result: string
   try {
-    result = await workspace.runCommand(
-      `${mvnCmd} dependency:build-classpath -Dmdep.pathSeparator='${separator}' -Dmdep.outputFile=${outputFilePath}`,
-      cwd
-    )
+    result = await workspace.runCommand(cmd, cwd)
   } catch(e) {
     // The maven operation failed for some reason so there's nothing we can do.
+    workspace.showMessage(`${PLUGIN_NAME} classpath command failed "cd ${cwd} && ${cmd}"`, 'error')
     return null
   }
 
