@@ -2,7 +2,7 @@ import { workspace } from 'coc.nvim'
 import findUp from 'find-up'
 import fs from 'fs'
 import * as path from 'path'
-import { GROOVY, PLUGIN_NAME, PLUGIN_NAME_SHORT } from './constants'
+import { GROOVY, PLUGIN_NAME } from './constants'
 import { Settings } from './settings'
 import { IS_WINDOWS } from './system'
 
@@ -34,7 +34,7 @@ export async function getMvnClasspath(filepath: string): Promise<string[]> {
   }
 
   const cwd = path.dirname(pom)
-  workspace.showMessage(`${PLUGIN_NAME_SHORT} project [${path.basename(cwd)}] loading libraries...`)
+  workspace.showMessage(`${PLUGIN_NAME} project [${path.basename(cwd)}] loading libraries...`)
   return buildClasspath(cwd)
 }
 

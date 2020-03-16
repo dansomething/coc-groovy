@@ -3,7 +3,7 @@ import { DidChangeConfigurationNotification, Disposable } from 'vscode-languages
 import { getClasspath } from './classpath'
 import { getClientOptions } from './client'
 import { Commands } from './commands'
-import { GROOVY, PLUGIN_NAME, PLUGIN_NAME_SHORT } from './constants'
+import { GROOVY, PLUGIN_NAME } from './constants'
 import { RequirementsData, resolveRequirements } from './requirements'
 import { getServerOptions } from './server'
 
@@ -16,7 +16,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
     requirements = await resolveRequirements()
     await getCurrentFileClasspath() // called here to optimize startup time
     workspace.showMessage(
-      `${PLUGIN_NAME_SHORT} using Java from ${requirements.java_home}, version: ${requirements.java_version}`,
+      `${PLUGIN_NAME} using Java from ${requirements.java_home}, version: ${requirements.java_version}`,
       'more'
     )
     return startLanguageServer(context, requirements)
@@ -47,7 +47,7 @@ async function startLanguageServer(context: ExtensionContext, requirements: Requ
   languageClient.registerProposedFeatures()
 
   languageClient.onReady().then(() => {
-    workspace.showMessage(`${PLUGIN_NAME_SHORT} started!`)
+    workspace.showMessage(`${PLUGIN_NAME} started!`)
     registerCommands(context)
   }, e => {
     context.logger.error(e.message)
@@ -63,7 +63,7 @@ function registerCommands(context: ExtensionContext): void {
 
 async function updateProjectConfig(): Promise<void> {
   await updateClasspath(true)
-  workspace.showMessage(`${PLUGIN_NAME_SHORT} project config updated.`)
+  workspace.showMessage(`${PLUGIN_NAME} project config updated.`)
 }
 
 async function updateClasspath(forceUpdate?: boolean): Promise<void> {
