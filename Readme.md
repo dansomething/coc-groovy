@@ -11,7 +11,7 @@ An [extension for coc.nvim](https://github.com/neoclide/coc.nvim/wiki/Using-coc-
 1. Download and install a recent Java Development Kit (latest Java 8 is the minimum requirement).
 2. Install this extension by running this command in Vim:
 ```
-  :CocInstall https://github.com/dansomething/coc-groovy
+  :CocInstall coc-groovy
 ```
 3. This extension is activated when you first open a Groovy file.
 
