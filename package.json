@@ -10,6 +10,9 @@
     "/server"
   ],
   "publisher": "dansomething",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  },
   "engines": {
     "coc": ">=0.0.66"
   },
