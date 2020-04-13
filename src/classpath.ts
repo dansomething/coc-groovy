@@ -55,10 +55,12 @@ async function buildClasspath(cwd: string): Promise<string[]> {
   } catch(e) {
     // The maven operation failed for some reason so there's nothing we can do.
     workspace.showMessage(`${PLUGIN_NAME} classpath command failed "cd ${cwd} && ${cmd}"`, 'error')
+    workspace.deleteFile(outputFilePath, { ignoreIfNotExists: true })
     return null
   }
 
   if (!result?.includes('BUILD SUCCESS')) {
+    workspace.deleteFile(outputFilePath, { ignoreIfNotExists: true })
     return null
   }
 
