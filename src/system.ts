@@ -1,5 +1,7 @@
-export const IS_WINDOWS = process.platform.indexOf('win') === 0
+import * as os from 'os'
+import * as path from 'path'
 
+export const IS_WINDOWS = process.platform.indexOf('win') === 0
 export const JAVAC_FILENAME = 'javac' + (IS_WINDOWS ? '.exe' : '')
 export const JAVA_FILENAME = 'java' + (IS_WINDOWS ? '.exe' : '')
 
@@ -16,4 +18,8 @@ function startedInDebugMode(): boolean {
 
 export function isGroovyFile(path: string): boolean {
   return path?.endsWith('.groovy')
+}
+
+export function getTempWorkspace(): string {
+  return path.resolve(os.tmpdir(), 'coc-groovy')
 }

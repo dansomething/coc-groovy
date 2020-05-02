@@ -6,17 +6,20 @@ import { GROOVY, PLUGIN_NAME } from './constants'
 import { Settings } from './settings'
 import { IS_WINDOWS } from './system'
 
+const CLASSPATH_FILE = '.groovy-classpath'
+
 // Cache the Maven generated classpath to improve initial load time.
 let mvnClasspath: string[] | undefined
 
-export async function getClasspath(filepath: string, forceUpdate?: boolean): Promise<string[]> {
+export async function getClasspath(storagePath: string, filepath: string, forceUpdate?: boolean): Promise<string[]> {
   if (forceUpdate) {
     mvnClasspath = undefined
+    deleteClasspathFile(storagePath)
     workspace.showMessage("Resetting loaded libraries.")
   }
 
   if (!mvnClasspath) {
-    mvnClasspath = await getMvnClasspath(filepath)
+    mvnClasspath = await getMvnClasspath(storagePath, filepath)
   }
 
   const config = workspace.getConfiguration(GROOVY)
@@ -27,7 +30,7 @@ export async function getClasspath(filepath: string, forceUpdate?: boolean): Pro
   return classpath
 }
 
-export async function getMvnClasspath(filepath: string): Promise<string[]> {
+export async function getMvnClasspath(storagePath: string , filepath: string): Promise<string[]> {
   const pom = await findNearestPom(filepath)
   if (!pom) {
     return null
@@ -35,38 +38,51 @@ export async function getMvnClasspath(filepath: string): Promise<string[]> {
 
   const cwd = path.dirname(pom)
   workspace.showMessage(`${PLUGIN_NAME} project [${path.basename(cwd)}] loading libraries...`)
-  return buildClasspath(cwd)
+  return buildClasspath(storagePath, cwd)
 }
 
-async function buildClasspath(cwd: string): Promise<string[]> {
-  const mvnCmd = await findMvnCmd()
-  if (!mvnCmd) {
-    return null
-  }
-
+function getClasspathFilePath(storagePath: string): string {
   // Specifying the full path results in only one file being created for a multi-module project.
-  const outputFilePath = path.resolve(cwd, '.classpath.txt')
+  return path.resolve(storagePath, CLASSPATH_FILE)
+}
+
+function deleteClasspathFile(storagePath: string): void {
+    workspace.deleteFile(getClasspathFilePath(storagePath), { ignoreIfNotExists: true })
+}
+
+async function buildClasspath(storagePath: string, cwd: string): Promise<string[]> {
+  const classpathFilePath = getClasspathFilePath(storagePath)
   const separator = ':'
-  const cmd = `${mvnCmd} dependency:build-classpath -Dmdep.pathSeparator='${separator}' -Dmdep.outputFile=${outputFilePath}`
+  let fileContent: string
 
-  let result: string
-  try {
-    result = await workspace.runCommand(cmd, cwd)
-  } catch(e) {
-    // The maven operation failed for some reason so there's nothing we can do.
-    workspace.showMessage(`${PLUGIN_NAME} classpath command failed "cd ${cwd} && ${cmd}"`, 'error')
-    workspace.deleteFile(outputFilePath, { ignoreIfNotExists: true })
-    return null
+  if (fs.existsSync(classpathFilePath)) {
+    fileContent = fs.readFileSync(classpathFilePath, 'utf8')
   }
 
-  if (!result?.includes('BUILD SUCCESS')) {
-    workspace.deleteFile(outputFilePath, { ignoreIfNotExists: true })
-    return null
-  }
-
-  const fileContent = fs.readFileSync(outputFilePath, 'utf8')
-  workspace.deleteFile(outputFilePath)
   if (!fileContent) {
+    const mvnCmd = await findMvnCmd()
+    if (!mvnCmd) {
+      return null
+    }
+    const cmd = `${mvnCmd} dependency:build-classpath -Dmdep.pathSeparator='${separator}' -Dmdep.outputFile=${classpathFilePath}`
+
+    try {
+      const result = await workspace.runCommand(cmd, cwd)
+      if (!result?.includes('BUILD SUCCESS')) {
+        deleteClasspathFile(storagePath)
+        return null
+      }
+    } catch(e) {
+      // The maven operation failed for some reason so there's nothing we can do.
+      deleteClasspathFile(storagePath)
+      workspace.showMessage(`${PLUGIN_NAME} classpath command failed "cd ${cwd} && ${cmd}"`, 'error')
+      return null
+    }
+  }
+
+  fileContent = fs.readFileSync(classpathFilePath, 'utf8')
+  if (!fileContent) {
+    deleteClasspathFile(storagePath)
     return null
   }
 

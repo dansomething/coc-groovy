@@ -1,4 +1,6 @@
 import { commands, ExtensionContext, LanguageClient, workspace } from 'coc.nvim'
+import { createHash } from 'crypto'
+import * as path from 'path'
 import { DidChangeConfigurationNotification, Disposable } from 'vscode-languageserver-protocol'
 import { getClasspath } from './classpath'
 import { getClientOptions } from './client'
@@ -6,11 +8,14 @@ import { Commands } from './commands'
 import { GROOVY, PLUGIN_NAME } from './constants'
 import { RequirementsData, resolveRequirements } from './requirements'
 import { getServerOptions } from './server'
+import { getTempWorkspace } from './system'
 
 let languageClient: LanguageClient
 let languageClientDisposable: Disposable
+let storagePath: string
 
 export async function activate(context: ExtensionContext): Promise<void> {
+  storagePath = getStoragePath(context)
   let requirements: RequirementsData
   try {
     requirements = await resolveRequirements()
@@ -33,6 +38,17 @@ export async function activate(context: ExtensionContext): Promise<void> {
 export function deactivate(): void {
   languageClientDisposable.dispose()
   languageClient = null
+}
+
+function getStoragePath(context: ExtensionContext): string {
+  let workspacePath = context.storagePath
+  if (!workspacePath) {
+    workspacePath = getTempWorkspace()
+  }
+
+  const id = createHash('md5').update(workspace.root).digest('hex')
+  const workspaceName = `groovy_ws_${id}`
+  return path.resolve(workspacePath, workspaceName)
 }
 
 async function startLanguageServer(context: ExtensionContext, requirements: RequirementsData): Promise<void> {
@@ -79,5 +95,5 @@ async function updateClasspath(forceUpdate?: boolean): Promise<void> {
 
 async function getCurrentFileClasspath(forceUpdate?: boolean): Promise<string[]> {
   const filepath = await workspace.nvim.call('expand', '%:p') as string
-  return await getClasspath(filepath, forceUpdate)
+  return await getClasspath(storagePath, filepath, forceUpdate)
 }
