@@ -5,6 +5,7 @@ export function getClientOptions(onConfigChange: () => void): LanguageClientOpti
   const config = workspace.getConfiguration(GROOVY)
 
   return {
+    diagnosticCollectionName: GROOVY,
     documentSelector: [{ scheme: 'file', language: GROOVY }],
     synchronize: {
       configurationSection: GROOVY
