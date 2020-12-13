@@ -1,1 +1,1 @@
- declare module 'expand-home-dir'
+declare module 'expand-home-dir';

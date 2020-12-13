@@ -1,17 +1,17 @@
-import { LanguageClientOptions, workspace } from 'coc.nvim'
-import { GROOVY } from './constants'
+import { LanguageClientOptions, workspace } from 'coc.nvim';
+import { GROOVY } from './constants';
 
 export function getClientOptions(onConfigChange: () => void): LanguageClientOptions {
-  const config = workspace.getConfiguration(GROOVY)
+  const config = workspace.getConfiguration(GROOVY);
 
   return {
     diagnosticCollectionName: GROOVY,
     documentSelector: [{ scheme: 'file', language: GROOVY }],
     synchronize: {
-      configurationSection: GROOVY
+      configurationSection: GROOVY,
     },
     initializationOptions: {
-      settings: { groovy: config }
+      settings: { groovy: config },
     },
     middleware: {
       workspace: {
@@ -20,12 +20,12 @@ export function getClientOptions(onConfigChange: () => void): LanguageClientOpti
           didChangeConfiguration: (sections: string[] | undefined) => void
         ) => {
           if (sections?.length == 1 && sections[0] === GROOVY) {
-            onConfigChange()
+            onConfigChange();
           } else {
-            didChangeConfiguration(sections)
+            didChangeConfiguration(sections);
           }
-        }
-      }
-    }
-  }
+        },
+      },
+    },
+  };
 }

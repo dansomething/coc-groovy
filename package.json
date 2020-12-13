@@ -2,6 +2,13 @@
   "name": "coc-groovy",
   "version": "0.2.1",
   "description": "Groovy langauage extension for coc.nvim",
+  "author": "dansomething",
+  "license": "EPL-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dansomething/coc-groovy"
+  },
+  "bugs": "https://github.com/dansomething/coc-groovy/issues",
   "main": "lib/index.js",
   "files": [
     "/LICENSE",
@@ -9,28 +16,64 @@
     "/lib",
     "/server"
   ],
+  "keywords": [
+    "coc.nvim",
+    "groovy",
+    "languag,eserver"
+  ],
   "publisher": "dansomething",
   "publishConfig": {
     "registry": "https://registry.npmjs.org"
   },
   "engines": {
-    "coc": ">=0.0.66"
+    "coc": "^0.0.77"
   },
-  "keywords": [
-    "coc.nvim",
-    "languageserver"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/dansomething/coc-groovy"
-  },
-  "bugs": "https://github.com/dansomething/coc-groovy/issues",
   "scripts": {
+    "lint": "eslint src --ext ts",
     "clean": "rimraf lib",
     "build": "webpack",
-    "prepare": "npx npm-run-all clean build",
+    "prepare": "npm-run-all clean build",
     "release": "np",
-    "test": "echo \"No test specified\""
+    "watch": "webpack --watch"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "printWidth": 120,
+    "semi": true
+  },
+  "devDependencies": {
+    "@types/glob": "7.1.1",
+    "@types/got": "^9.6.9",
+    "@types/mkdirp": "^1.0.0",
+    "@types/mocha": "^7.0.2",
+    "@types/node": "^14.6.0",
+    "@types/tunnel": "^0.0.1",
+    "@typescript-eslint/eslint-plugin": "^4.9.0",
+    "@typescript-eslint/parser": "^4.9.0",
+    "coc.nvim": "^0.0.77",
+    "compressing": "^1.5.0",
+    "decompress": "^4.2.0",
+    "eslint": "^7.14.0",
+    "eslint-config-prettier": "^6.15.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "expand-home-dir": "^0.0.3",
+    "find-java-home": "1.1.0",
+    "find-up": "^4.1.0",
+    "glob": "^7.1.6",
+    "got": "^11.1.0",
+    "mkdirp": "^1.0.3",
+    "mocha": "^7.1.0",
+    "np": "6.4.0",
+    "npm-run-all": "^4.1.5",
+    "path-exists": "^4.0.0",
+    "prettier": "^2.2.1",
+    "rimraf": "^3.0.2",
+    "ts-loader": "^8.0.2",
+    "tunnel": "^0.0.6",
+    "typescript": "^4.1.2",
+    "vscode-languageserver-protocol": "^3.15.0-next.1",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12"
   },
   "activationEvents": [
     "onLanguage:groovy"
@@ -109,36 +152,5 @@
         "category": "Groovy"
       }
     ]
-  },
-  "license": "EPL-2.0",
-  "devDependencies": {
-    "@chemzqm/tsconfig": "^0.0.3",
-    "@chemzqm/tslint-config": "^1.0.18",
-    "@types/glob": "7.1.1",
-    "@types/got": "^9.6.9",
-    "@types/mkdirp": "^1.0.0",
-    "@types/mocha": "^7.0.2",
-    "@types/node": "^13.9.1",
-    "@types/tunnel": "^0.0.1",
-    "coc.nvim": "0.0.77",
-    "compressing": "^1.5.0",
-    "decompress": "^4.2.0",
-    "expand-home-dir": "^0.0.3",
-    "find-java-home": "1.1.0",
-    "find-up": "^4.1.0",
-    "glob": "^7.1.6",
-    "got": "^11.1.0",
-    "mkdirp": "^1.0.3",
-    "mocha": "^7.1.0",
-    "np": "6.4.0",
-    "path-exists": "^4.0.0",
-    "rimraf": "^3.0.1",
-    "ts-loader": "^7.0.2",
-    "tslint": "^6.1.0",
-    "tunnel": "^0.0.6",
-    "typescript": "3.8.3",
-    "vscode-languageserver-protocol": "^3.15.0-next.1",
-    "webpack": "^4.42.0",
-    "webpack-cli": "^3.3.10"
   }
 }

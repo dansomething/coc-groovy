@@ -1,15 +1,5 @@
-import { NotificationType } from 'vscode-languageserver-protocol'
-
-export interface Initialized {
-}
-
-export namespace InitializedNotification {
-  export const type = new NotificationType<Initialized, never>('workspace/didChangeConfiguration')
-}
-
-export interface DidChangeConfiguration {
-}
+import { NotificationType } from 'vscode-languageserver-protocol';
 
 export namespace ProgressReportNotification {
-  export const type = new NotificationType<DidChangeConfiguration, never>('workspace/didChangeConfiguration')
+  export const type = new NotificationType<any, never>('workspace/didChangeConfiguration');
 }

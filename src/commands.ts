@@ -5,10 +5,10 @@ export namespace Commands {
   /**
    * Open Browser
    */
-  export const OPEN_BROWSER = 'vscode.open'
+  export const OPEN_BROWSER = 'vscode.open';
 
   /**
    * Update project configuration
    */
-  export const CONFIGURATION_UPDATE = 'groovy.project.config.update'
+  export const CONFIGURATION_UPDATE = 'groovy.project.config.update';
 }
