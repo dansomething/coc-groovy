@@ -1,6 +1,6 @@
 {
   "name": "coc-groovy",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Groovy langauage extension for coc.nvim",
   "author": "dansomething",
   "license": "EPL-2.0",
