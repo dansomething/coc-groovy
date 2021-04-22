@@ -73,7 +73,7 @@ async function buildClasspath(storagePath: string, cwd: string, tool: string): P
       if (!gradleCmd) {
         return null;
       }
-      cmd = `${gradleCmd} -q classPath -PoutputFile=${classpathFilePath}`;
+      cmd = `${gradleCmd} classPath -PoutputFile=${classpathFilePath}`;
     }else{
       return null
     }
@@ -116,7 +116,7 @@ async function findGradleCmd(cwd: string): Promise<string | null> {
       if(fs.existsSync(`${cwd}\\gradle.bat`)){
         const gradleVersion = await workspace.runCommand(`${cwd}\\gradle.bat --version`)
         if (gradleVersion.match(/Gradle \d\.\d+\.\d+/)) {
-          return "gradle.bat";
+          return ".\\gradle.bat";
         }
       }else{
         const gradleVersion = await workspace.runCommand(`gradle --version`)
@@ -126,9 +126,9 @@ async function findGradleCmd(cwd: string): Promise<string | null> {
       }
     }else{
       if(fs.existsSync(`${cwd}/gradlew`)){
-        const gradleVersion = await workspace.runCommand(`${cwd}\\gradlew --version`)
+        const gradleVersion = await workspace.runCommand(`${cwd}/gradlew --version`)
         if (gradleVersion.match(/Gradle \d\.\d+\.\d+/)) {
-          return "gradlew";
+          return "./gradlew";
         }
       }else{
         const gradleVersion = await workspace.runCommand(`gradle --version`)
