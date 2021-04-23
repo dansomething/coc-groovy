@@ -10,6 +10,7 @@ const CLASSPATH_FILE = '.groovy-classpath';
 
 // Cache the Maven generated classpath to improve initial load time.
 let builtClassPath: string[] | null;
+const separator = ':';
 
 export async function getClasspath(storagePath: string, filepath: string, forceUpdate?: boolean): Promise<string[]> {
   if (forceUpdate) {
@@ -23,9 +24,13 @@ export async function getClasspath(storagePath: string, filepath: string, forceU
   }
 
   const config = workspace.getConfiguration(GROOVY);
-  let classpath = config.get<string[]>(Settings.REFERENCED_LIBRARIES, []);
-  if (builtClassPath) {
-    classpath = classpath.concat(builtClassPath);
+  let classpath: Array<string> = config.get<string[]>(Settings.REFERENCED_LIBRARIES, []);
+  if(Array.isArray(classpath)){
+    if (builtClassPath) {
+      classpath = classpath.concat(builtClassPath);
+    }
+  }else{
+      workspace.showMessage(`groovy.project.referencedLibraries is not of type Array<string>`, 'error');
   }
   return classpath;
 }
@@ -53,7 +58,6 @@ function deleteClasspathFile(storagePath: string): void {
 
 async function buildClasspath(storagePath: string, cwd: string, tool: string): Promise<string[] | null> {
   const classpathFilePath = getClasspathFilePath(storagePath);
-  const separator = ':';
   let fileContent: string | null = null;
 
   if (fs.existsSync(classpathFilePath)) {
