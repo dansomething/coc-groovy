@@ -10,6 +10,7 @@ const CLASSPATH_FILE = '.groovy-classpath';
 
 // Cache the Maven generated classpath to improve initial load time.
 let builtClassPath: string[] | null;
+const separator = ':';
 
 export async function getClasspath(storagePath: string, filepath: string, forceUpdate?: boolean): Promise<string[]> {
   if (forceUpdate) {
@@ -23,9 +24,15 @@ export async function getClasspath(storagePath: string, filepath: string, forceU
   }
 
   const config = workspace.getConfiguration(GROOVY);
-  let classpath = config.get<string[]>(Settings.REFERENCED_LIBRARIES, []);
-  if (builtClassPath) {
-    classpath = classpath.concat(builtClassPath);
+  let classpath: Array<string> = config.get<string[]>(Settings.REFERENCED_LIBRARIES, []);
+  if(Array.isArray(classpath)){
+    if (builtClassPath) {
+      classpath = classpath.concat(builtClassPath);
+    }
+  }else{
+      let value: String = classpath
+      classpath = value.split(separator) as string[]
+      classpath = classpath.concat(builtClassPath as [])
   }
   return classpath;
 }
@@ -53,7 +60,6 @@ function deleteClasspathFile(storagePath: string): void {
 
 async function buildClasspath(storagePath: string, cwd: string, tool: string): Promise<string[] | null> {
   const classpathFilePath = getClasspathFilePath(storagePath);
-  const separator = ':';
   let fileContent: string | null = null;
 
   if (fs.existsSync(classpathFilePath)) {
@@ -73,7 +79,7 @@ async function buildClasspath(storagePath: string, cwd: string, tool: string): P
       if (!gradleCmd) {
         return null;
       }
-      cmd = `${gradleCmd} -q classPath -PoutputFile=${classpathFilePath}`;
+      cmd = `${gradleCmd} classPath -PoutputFile=${classpathFilePath}`;
     }else{
       return null
     }
@@ -116,7 +122,7 @@ async function findGradleCmd(cwd: string): Promise<string | null> {
       if(fs.existsSync(`${cwd}\\gradle.bat`)){
         const gradleVersion = await workspace.runCommand(`${cwd}\\gradle.bat --version`)
         if (gradleVersion.match(/Gradle \d\.\d+\.\d+/)) {
-          return "gradle.bat";
+          return ".\\gradle.bat";
         }
       }else{
         const gradleVersion = await workspace.runCommand(`gradle --version`)
@@ -126,9 +132,9 @@ async function findGradleCmd(cwd: string): Promise<string | null> {
       }
     }else{
       if(fs.existsSync(`${cwd}/gradlew`)){
-        const gradleVersion = await workspace.runCommand(`${cwd}\\gradlew --version`)
+        const gradleVersion = await workspace.runCommand(`${cwd}/gradlew --version`)
         if (gradleVersion.match(/Gradle \d\.\d+\.\d+/)) {
-          return "gradlew";
+          return "./gradlew";
         }
       }else{
         const gradleVersion = await workspace.runCommand(`gradle --version`)
