@@ -46,6 +46,37 @@ The path to the Java Development Kit is searched in the following order:
 3. The `JAVA_HOME` environment variable.
 4. The current system path.
 
+## Gradle Support
+
+By default coc-groovy will try to run with maven and look for a `pom.xml` in the project root, however if `build.gradle` is found coc-groovy will attempt to resolve classes from there.
+
+`gradlew` or `gradle.bat` will be used over the `gradle` command if found.
+
+Currently there is no built in way in gradle to generate a classpath like there is in maven, so we have to add it ourselves.
+
+To use gradle with coc-groovy, add this task to your `build.gradle`
+
+```groovy
+tasks.register("classPath"){
+    def classpath = sourceSets.main.compileClasspath.asPath 
+    if(System.getProperty("outputFile") != ""){
+        File out =  new File(outputFile)
+        out.getParentFile().mkdirs()
+        out.text = classpath
+    }
+    else
+        println classpath
+}
+```
+
+coc-groovy will execute this command
+
+`${gradleCmd} classPath -PoutputFile=${classpathFilePath}`
+
+Make sure this works on your machine after adding the task
+
+Example: `./gradlew classPath` or `./gradlew classPath -PoutputFile=cp.txt`
+
 ## License
 
 EPL 2.0, See [LICENSE](LICENSE) for more information.
