@@ -25,14 +25,14 @@ export async function getClasspath(storagePath: string, filepath: string, forceU
 
   const config = workspace.getConfiguration(GROOVY);
   let classpath: Array<string> = config.get<string[]>(Settings.REFERENCED_LIBRARIES, []);
-  if(Array.isArray(classpath)){
+  if (Array.isArray(classpath)) {
     if (builtClassPath) {
       classpath = classpath.concat(builtClassPath);
     }
-  }else{
-      let value: String = classpath
-      classpath = value.split(separator) as string[]
-      classpath = classpath.concat(builtClassPath as [])
+  } else {
+    const value: string = classpath;
+    classpath = value.split(separator) as string[];
+    classpath = classpath.concat(builtClassPath as []);
   }
   return classpath;
 }
@@ -44,7 +44,7 @@ export async function getBuiltClasspath(storagePath: string, filepath: string): 
   }
 
   const cwd = path.dirname(buildFile);
-  const buildTool = buildFile.includes("pom")? "mvn": "gradle"
+  const buildTool = buildFile.includes('pom') ? 'mvn' : 'gradle';
   workspace.showMessage(`${PLUGIN_NAME} project [${path.basename(cwd)}] loading libraries with ${buildTool}...`);
   return buildClasspath(storagePath, cwd, buildTool);
 }
@@ -67,27 +67,27 @@ async function buildClasspath(storagePath: string, cwd: string, tool: string): P
   }
 
   if (!fileContent) {
-    let cmd = ""
-    if(tool === "mvn"){
+    let cmd = '';
+    if (tool === 'mvn') {
       const mvnCmd = await findMvnCmd();
       if (!mvnCmd) {
         return null;
       }
       cmd = `${mvnCmd} dependency:build-classpath -Dmdep.pathSeparator='${separator}' -Dmdep.outputFile=${classpathFilePath}`;
-    }else if(tool === "gradle"){
+    } else if (tool === 'gradle') {
       const gradleCmd = await findGradleCmd();
       if (!gradleCmd) {
         return null;
       }
       cmd = `${gradleCmd} --output-file=${classpathFilePath}`;
-    }else{
-      return null
+    } else {
+      return null;
     }
 
     try {
       await workspace.runCommand(cmd, cwd);
-      const errorCMD = IS_WINDOWS? "echo %errorlevel%": "echo $?"
-      const errorCode = parseInt(await workspace.runCommand(errorCMD))
+      const errorCMD = IS_WINDOWS ? 'echo %errorlevel%' : 'echo $?';
+      const errorCode = parseInt(await workspace.runCommand(errorCMD));
       if (errorCode !== 0) {
         deleteClasspathFile(storagePath);
         return null;
@@ -112,18 +112,18 @@ async function buildClasspath(storagePath: string, cwd: string, tool: string): P
 async function findNearestBuildFile(filepath: string): Promise<string | undefined> {
   const filedir = path.dirname(filepath);
   const isPom = await findUp('pom.xml', { cwd: filedir });
-  if(!isPom){
+  if (!isPom) {
     return await findUp('build.gradle', { cwd: filedir });
   }
-  return isPom
+  return isPom;
 }
 
 async function findGradleCmd(): Promise<string | null> {
   try {
-    if(IS_WINDOWS){
-      return `${workspace.root}\\utils\\groovy-classpath\\bin\\gradle-classpath.bat`
-    }else{
-      return `${workspace.root}/utils/groovy-classpath/bin/gradle-classpath`
+    if (IS_WINDOWS) {
+      return `${workspace.root}\\utils\\groovy-classpath\\bin\\gradle-classpath.bat`;
+    } else {
+      return `${workspace.root}/utils/groovy-classpath/bin/gradle-classpath`;
     }
   } catch (_e) {
     // noop
