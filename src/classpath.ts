@@ -87,8 +87,8 @@ async function buildClasspath(storagePath: string, cwd: string, tool: string): P
     try {
       await workspace.runCommand(cmd, cwd);
       const errorCMD = IS_WINDOWS? "echo %errorlevel%": "echo $?"
-      const errorCode = await workspace.runCommand(errorCMD)
-      if (errorCode !== "0") {
+      const errorCode = parseInt(await workspace.runCommand(errorCMD))
+      if (errorCode !== 0) {
         deleteClasspathFile(storagePath);
         return null;
       }
