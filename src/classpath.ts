@@ -73,18 +73,20 @@ async function buildClasspath(storagePath: string, cwd: string, tool: string): P
       }
       cmd = `${mvnCmd} dependency:build-classpath -Dmdep.pathSeparator='${separator}' -Dmdep.outputFile=${classpathFilePath}`;
     }else if(tool === "gradle"){
-      const gradleCmd = await findGradleCmd(cwd);
+      const gradleCmd = await findGradleCmd();
       if (!gradleCmd) {
         return null;
       }
-      cmd = `${gradleCmd} classPath -PoutputFile=${classpathFilePath}`;
+      cmd = `${gradleCmd} --output-file=${classpathFilePath}`;
     }else{
       return null
     }
 
     try {
-      const result = await workspace.runCommand(cmd, cwd);
-      if (!result?.includes('BUILD SUCCESS')) {
+      await workspace.runCommand(cmd, cwd);
+      const errorCMD = IS_WINDOWS? "echo %errorlevel%": "echo $?"
+      const errorCode = await workspace.runCommand(errorCMD)
+      if (errorCode !== "0") {
         deleteClasspathFile(storagePath);
         return null;
       }
@@ -114,32 +116,12 @@ async function findNearestBuildFile(filepath: string): Promise<string | undefine
   return isPom
 }
 
-async function findGradleCmd(cwd: string): Promise<string | null> {
+async function findGradleCmd(): Promise<string | null> {
   try {
     if(IS_WINDOWS){
-      if(fs.existsSync(`${cwd}\\gradle.bat`)){
-        const gradleVersion = await workspace.runCommand(`${cwd}\\gradle.bat --version`)
-        if (gradleVersion.match(/Gradle \d\.\d+\.\d+/)) {
-          return ".\\gradle.bat";
-        }
-      }else{
-        const gradleVersion = await workspace.runCommand(`gradle --version`)
-        if (gradleVersion.match(/Gradle \d\.\d+\.\d+/)) {
-          return "gradle";
-        }
-      }
+      return `${workspace.root}\\utils\\groovy-classpath\\bin\\gradle-classpath.bat`
     }else{
-      if(fs.existsSync(`${cwd}/gradlew`)){
-        const gradleVersion = await workspace.runCommand(`${cwd}/gradlew --version`)
-        if (gradleVersion.match(/Gradle \d\.\d+\.\d+/)) {
-          return "./gradlew";
-        }
-      }else{
-        const gradleVersion = await workspace.runCommand(`gradle --version`)
-        if (gradleVersion.match(/Gradle \d\.\d+\.\d+/)) {
-          return "gradle";
-        }
-      }
+      return `${workspace.root}/utils/groovy-classpath/bin/gradle-classpath`
     }
   } catch (_e) {
     // noop
