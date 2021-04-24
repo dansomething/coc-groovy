@@ -30,7 +30,9 @@ export async function getClasspath(storagePath: string, filepath: string, forceU
       classpath = classpath.concat(builtClassPath);
     }
   }else{
-      workspace.showMessage(`groovy.project.referencedLibraries is not of type Array<string>`, 'error');
+      let value: String = classpath
+      classpath = value.split(separator) as string[]
+      classpath = classpath.concat(builtClassPath as [])
   }
   return classpath;
 }
