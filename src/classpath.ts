@@ -78,7 +78,7 @@ async function buildClasspath(storagePath: string, cwd: string, tool: string): P
       if (!gradleCmd) {
         return null;
       }
-      cmd = `${gradleCmd} --path-seperator=${separator} --output-file=${classpathFilePath}`;
+      cmd = `${gradleCmd} --path-separator=${separator} --output-file=${classpathFilePath}`;
     } else {
       return null;
     }
