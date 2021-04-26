@@ -4,6 +4,7 @@ import fs from 'fs';
 import * as path from 'path';
 import { GROOVY, PLUGIN_NAME } from './constants';
 import { Settings } from './settings';
+import { extensions } from 'coc.nvim';
 import { IS_WINDOWS } from './system';
 
 const CLASSPATH_FILE = '.groovy-classpath';
@@ -24,15 +25,13 @@ export async function getClasspath(storagePath: string, filepath: string, forceU
   }
 
   const config = workspace.getConfiguration(GROOVY);
-  let classpath: Array<string> = config.get<string[]>(Settings.REFERENCED_LIBRARIES, []);
-  if (Array.isArray(classpath)) {
-    if (builtClassPath) {
-      classpath = classpath.concat(builtClassPath);
-    }
-  } else {
-    const value: string = classpath;
+  let classpath: Array<string> | string = config.get<string[]>(Settings.REFERENCED_LIBRARIES, []);
+  if (!Array.isArray(classpath)) {
+    const value = classpath as string;
     classpath = value.split(separator) as string[];
-    classpath = classpath.concat(builtClassPath as []);
+  }
+  if (builtClassPath) {
+    classpath = classpath.concat(builtClassPath);
   }
   return classpath;
 }
@@ -67,7 +66,7 @@ async function buildClasspath(storagePath: string, cwd: string, tool: string): P
   }
 
   if (!fileContent) {
-    let cmd = '';
+    let cmd: string;
     if (tool === 'mvn') {
       const mvnCmd = await findMvnCmd();
       if (!mvnCmd) {
@@ -79,7 +78,7 @@ async function buildClasspath(storagePath: string, cwd: string, tool: string): P
       if (!gradleCmd) {
         return null;
       }
-      cmd = `${gradleCmd} --output-file=${classpathFilePath}`;
+      cmd = `${gradleCmd} --path-seperator=${separator} --output-file=${classpathFilePath}`;
     } else {
       return null;
     }
@@ -111,20 +110,23 @@ async function buildClasspath(storagePath: string, cwd: string, tool: string): P
 
 async function findNearestBuildFile(filepath: string): Promise<string | undefined> {
   const filedir = path.dirname(filepath);
-  const isPom = await findUp('pom.xml', { cwd: filedir });
-  if (!isPom) {
-    return await findUp('build.gradle', { cwd: filedir });
+  let buildFile = await findUp('pom.xml', { cwd: filedir });
+  if (!buildFile) {
+    buildFile = await findUp('build.gradle', { cwd: filedir });
   }
-  return isPom;
+  return buildFile;
 }
 
 async function findGradleCmd(): Promise<string | null> {
   try {
-    if (IS_WINDOWS) {
-      return `${workspace.root}\\utils\\groovy-classpath\\bin\\gradle-classpath.bat`;
-    } else {
-      return `${workspace.root}/utils/groovy-classpath/bin/gradle-classpath`;
-    }
+    return path.resolve(
+      extensions.getExtension('coc-groovy').extension.extensionPath,
+      'utils',
+      'gradle-classpath',
+      'bin',
+      'gradle-classpath',
+      IS_WINDOWS ? '.bat' : ''
+    );
   } catch (_e) {
     // noop
   }
