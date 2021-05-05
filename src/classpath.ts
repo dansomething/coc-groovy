@@ -85,7 +85,7 @@ async function buildClasspath(storagePath: string, cwd: string, tool: string): P
 
     try {
       const result = await workspace.runCommand(cmd, cwd);
-      if (!result.includes('BUILD SUCCESS')) {
+      if (!result?.includes('BUILD SUCCESS')) {
         deleteClasspathFile(storagePath);
         return null;
       }
