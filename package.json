@@ -66,7 +66,9 @@
     "webpack-cli": "^4.7.0"
   },
   "activationEvents": [
-    "onLanguage:groovy"
+    "onLanguage:groovy",
+    "workspaceContains:pom.xml",
+    "workspaceContains:build.gradle"
   ],
   "contributes": {
     "rootPatterns": [
