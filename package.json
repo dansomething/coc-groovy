@@ -14,7 +14,8 @@
     "/LICENSE",
     "/README.md",
     "/lib",
-    "/server"
+    "/server",
+    "utils"
   ],
   "keywords": [
     "coc.nvim",
@@ -121,7 +122,7 @@
             "array"
           ],
           "default": [],
-          "description": "Configure additional paths for referencing libraries in a Groovy project.",
+          "description": "Configure additional paths for referencing libraries in a Groovy project. Note, Maven and Gradle projects will have their classpath automatically added.",
           "scope": "window"
         },
         "groovy.trace.server": {
