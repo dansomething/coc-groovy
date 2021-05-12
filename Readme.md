@@ -14,6 +14,7 @@ An [extension for coc.nvim](https://github.com/neoclide/coc.nvim/wiki/Using-coc-
 
 ## Features
 
+- Maven and Gradle project support
 - Code Completion
 - Find References
 - Go to Definition
@@ -34,7 +35,7 @@ The following settings are supported:
 - `groovy.java.home` : The absolute path to the JDK 8+ home directory. This is used to launch the Groovy language server. Requires a coc server restart.
 - `groovy.ls.vmargs` : Extra Java VM arguments used to launch the Groovy language server. Requires a coc server restart.
 - `groovy.ls.home` : The absolute path to the Groovy language server. This would be used instead of the bundled server when specified.
-- `groovy.project.referencedLibraries` : Configure additional paths (jar file or directory) for referencing libraries in a Groovy project.
+- `groovy.project.referencedLibraries` : Configure additional paths (jar file or directory) for referencing libraries in a Groovy project. Note, Maven and Gradle projects will have their classpath automatically added.
 - `groovy.trace.server` : Traces the communication between the coc-groovy extension and the Groovy language server.
 
 ## Setting the JDK
