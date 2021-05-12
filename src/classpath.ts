@@ -4,41 +4,48 @@ import fs from 'fs';
 import * as path from 'path';
 import { GROOVY, PLUGIN_NAME } from './constants';
 import { Settings } from './settings';
+import { extensions } from 'coc.nvim';
 import { IS_WINDOWS } from './system';
 
 const CLASSPATH_FILE = '.groovy-classpath';
 
 // Cache the Maven generated classpath to improve initial load time.
-let mvnClasspath: string[] | null;
+let builtClassPath: string[] | null;
+const separator = ':';
 
 export async function getClasspath(storagePath: string, filepath: string, forceUpdate?: boolean): Promise<string[]> {
   if (forceUpdate) {
-    mvnClasspath = null;
+    builtClassPath = null;
     deleteClasspathFile(storagePath);
     workspace.showMessage('Resetting loaded libraries.');
   }
 
-  if (!mvnClasspath) {
-    mvnClasspath = await getMvnClasspath(storagePath, filepath);
+  if (!builtClassPath) {
+    builtClassPath = await getBuiltClasspath(storagePath, filepath);
   }
 
   const config = workspace.getConfiguration(GROOVY);
-  let classpath = config.get<string[]>(Settings.REFERENCED_LIBRARIES, []);
-  if (mvnClasspath) {
-    classpath = classpath.concat(mvnClasspath);
+  let classpath: Array<string> | string = config.get<string[]>(Settings.REFERENCED_LIBRARIES, []);
+  if (!Array.isArray(classpath)) {
+    const value = classpath as string;
+    classpath = value.split(separator) as string[];
+  }
+  if (builtClassPath) {
+    classpath = classpath.concat(builtClassPath);
   }
   return classpath;
 }
 
-export async function getMvnClasspath(storagePath: string, filepath: string): Promise<string[] | null> {
-  const pom = await findNearestPom(filepath);
-  if (!pom) {
+export async function getBuiltClasspath(storagePath: string, filepath: string): Promise<string[] | null> {
+  const buildFile = await findNearestBuildFile(filepath);
+  if (!buildFile) {
     return null;
   }
 
-  const cwd = path.dirname(pom);
-  workspace.showMessage(`${PLUGIN_NAME} project [${path.basename(cwd)}] loading libraries...`);
-  return buildClasspath(storagePath, cwd);
+  const cwd = path.dirname(buildFile);
+  const buildTool = buildFile.includes('pom') ? 'mvn' : 'gradle';
+  workspace.showMessage(`${PLUGIN_NAME} project [${path.basename(cwd)}] loading libraries with ${buildTool}...`);
+  return buildClasspath(storagePath, cwd, buildTool);
 }
 
 function getClasspathFilePath(storagePath: string): string {
@@ -50,9 +57,8 @@ function deleteClasspathFile(storagePath: string): void {
   workspace.deleteFile(getClasspathFilePath(storagePath), { ignoreIfNotExists: true });
 }
 
-async function buildClasspath(storagePath: string, cwd: string): Promise<string[] | null> {
+async function buildClasspath(storagePath: string, cwd: string, tool: string): Promise<string[] | null> {
   const classpathFilePath = getClasspathFilePath(storagePath);
-  const separator = ':';
   let fileContent: string | null = null;
 
   if (fs.existsSync(classpathFilePath)) {
@@ -60,11 +66,22 @@ async function buildClasspath(storagePath: string, cwd: string): Promise<string[
   }
 
   if (!fileContent) {
-    const mvnCmd = await findMvnCmd();
-    if (!mvnCmd) {
+    let cmd: string;
+    if (tool === 'mvn') {
+      const mvnCmd = await findMvnCmd();
+      if (!mvnCmd) {
+        return null;
+      }
+      cmd = `${mvnCmd} dependency:build-classpath -Dmdep.pathSeparator='${separator}' -Dmdep.outputFile=${classpathFilePath}`;
+    } else if (tool === 'gradle') {
+      const gradleCmd = await findGradleCmd();
+      if (!gradleCmd) {
+        return null;
+      }
+      cmd = `${gradleCmd} --path-separator=${separator} --output-file=${classpathFilePath}`;
+    } else {
       return null;
     }
-    const cmd = `${mvnCmd} dependency:build-classpath -Dmdep.pathSeparator='${separator}' -Dmdep.outputFile=${classpathFilePath}`;
 
     try {
       const result = await workspace.runCommand(cmd, cwd);
@@ -89,9 +106,30 @@ async function buildClasspath(storagePath: string, cwd: string): Promise<string[
   return fileContent.split(separator).sort();
 }
 
-async function findNearestPom(filepath: string): Promise<string | undefined> {
+async function findNearestBuildFile(filepath: string): Promise<string | undefined> {
   const filedir = path.dirname(filepath);
-  return await findUp('pom.xml', { cwd: filedir });
+  let buildFile = await findUp('pom.xml', { cwd: filedir });
+  if (!buildFile) {
+    buildFile = await findUp('build.gradle', { cwd: filedir });
+  }
+  return buildFile;
+}
+
+async function findGradleCmd(): Promise<string | null> {
+  try {
+    return path.resolve(
+      extensions.getExtension('coc-groovy').extension.extensionPath,
+      'utils',
+      'gradle-classpath',
+      'bin',
+      'gradle-classpath',
+      IS_WINDOWS ? '.bat' : ''
+    );
+  } catch (_e) {
+    // noop
+  }
+
+  return null;
 }
 
 async function findMvnCmd(): Promise<string | null> {
