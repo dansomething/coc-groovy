@@ -8,10 +8,12 @@ import { extensions } from 'coc.nvim';
 import { IS_WINDOWS } from './system';
 
 const CLASSPATH_FILE = '.groovy-classpath';
+const SEPARATOR = IS_WINDOWS ? ';' : ':';
+const TOOL_GRADLE = 'gradle';
+const TOOL_MVN = 'mvn';
 
 // Cache the Maven generated classpath to improve initial load time.
 let builtClassPath: string[] | null;
-const separator = ':';
 
 export async function getClasspath(storagePath: string, filepath: string, forceUpdate?: boolean): Promise<string[]> {
   if (forceUpdate) {
@@ -28,7 +30,7 @@ export async function getClasspath(storagePath: string, filepath: string, forceU
   let classpath: Array<string> | string = config.get<string[]>(Settings.REFERENCED_LIBRARIES, []);
   if (!Array.isArray(classpath)) {
     const value = classpath as string;
-    classpath = value.split(separator) as string[];
+    classpath = value.split(SEPARATOR) as string[];
   }
   if (builtClassPath) {
     classpath = classpath.concat(builtClassPath);
@@ -39,11 +41,12 @@ export async function getClasspath(storagePath: string, filepath: string, forceU
 export async function getBuiltClasspath(storagePath: string, filepath: string): Promise<string[] | null> {
   const buildFile = await findNearestBuildFile(filepath);
   if (!buildFile) {
+    console.info('No build file was found to use for classpath generation.');
     return null;
   }
 
   const cwd = path.dirname(buildFile);
-  const buildTool = buildFile.includes('pom') ? 'mvn' : 'gradle';
+  const buildTool = buildFile.includes('pom') ? TOOL_MVN : TOOL_GRADLE;
   workspace.showMessage(`${PLUGIN_NAME} project [${path.basename(cwd)}] loading libraries with ${buildTool}...`);
   return buildClasspath(storagePath, cwd, buildTool);
 }
@@ -67,18 +70,18 @@ async function buildClasspath(storagePath: string, cwd: string, tool: string): P
 
   if (!fileContent) {
     let cmd: string;
-    if (tool === 'mvn') {
+    if (tool === TOOL_MVN) {
       const mvnCmd = await findMvnCmd();
       if (!mvnCmd) {
         return null;
       }
-      cmd = `${mvnCmd} dependency:build-classpath -Dmdep.pathSeparator='${separator}' -Dmdep.outputFile=${classpathFilePath}`;
-    } else if (tool === 'gradle') {
+      cmd = `${mvnCmd} dependency:build-classpath -Dmdep.pathSeparator='${SEPARATOR}' -Dmdep.outputFile=${classpathFilePath}`;
+    } else if (tool === TOOL_GRADLE) {
       const gradleCmd = await findGradleCmd();
       if (!gradleCmd) {
         return null;
       }
-      cmd = `${gradleCmd} --path-separator=${separator} --output-file=${classpathFilePath}`;
+      cmd = `${gradleCmd} --path-separator=${SEPARATOR} --output-file=${classpathFilePath}`;
     } else {
       return null;
     }
@@ -103,7 +106,7 @@ async function buildClasspath(storagePath: string, cwd: string, tool: string): P
     return null;
   }
 
-  return fileContent.split(separator).sort();
+  return fileContent.split(SEPARATOR).sort();
 }
 
 async function findNearestBuildFile(filepath: string): Promise<string | undefined> {
@@ -122,8 +125,7 @@ async function findGradleCmd(): Promise<string | null> {
       'utils',
       'gradle-classpath',
       'bin',
-      'gradle-classpath',
-      IS_WINDOWS ? '.bat' : ''
+      'gradle-classpath' + (IS_WINDOWS ? '.bat' : '')
     );
   } catch (_e) {
     // noop
