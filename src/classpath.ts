@@ -3,8 +3,8 @@ import findUp from 'find-up';
 import fs from 'fs';
 import * as path from 'path';
 import { GROOVY, PLUGIN_NAME } from './constants';
+import { getContext, getLogger } from './context';
 import { Settings } from './settings';
-import { extensions } from 'coc.nvim';
 import { IS_WINDOWS } from './system';
 
 const CLASSPATH_FILE = '.groovy-classpath';
@@ -41,13 +41,13 @@ export async function getClasspath(storagePath: string, filepath: string, forceU
 export async function getBuiltClasspath(storagePath: string, filepath: string): Promise<string[] | null> {
   const buildFile = await findNearestBuildFile(filepath);
   if (!buildFile) {
-    console.info('No build file was found to use for classpath generation.');
+    getLogger().info('getBuiltClasspath: No build file was found to use for classpath generation.');
     return null;
   }
 
   const cwd = path.dirname(buildFile);
   const buildTool = buildFile.includes('pom') ? TOOL_MVN : TOOL_GRADLE;
-  workspace.showMessage(`${PLUGIN_NAME} project [${path.basename(cwd)}] loading libraries with ${buildTool}...`);
+  workspace.showMessage(`${PLUGIN_NAME} project [${path.basename(cwd)}] loading libraries with [${buildTool}]...`);
   return buildClasspath(storagePath, cwd, buildTool);
 }
 
@@ -87,21 +87,26 @@ async function buildClasspath(storagePath: string, cwd: string, tool: string): P
     }
 
     try {
+      getLogger().debug(`buildClasspath cwd: ${cwd}`);
+      getLogger().debug(`buildClasspath cmd: ${cmd}`);
       const result = await workspace.runCommand(cmd, cwd);
       if (!result?.includes('BUILD SUCCESS')) {
+        getLogger().warn(`buildClasspath: cmd failed [${result}]`);
         deleteClasspathFile(storagePath);
         return null;
       }
     } catch (e) {
       // The maven operation failed for some reason so there's nothing we can do.
-      deleteClasspathFile(storagePath);
+      getLogger().warn(`buildClasspath: cmd failed [${JSON.stringify(e)}]`);
       workspace.showMessage(`${PLUGIN_NAME} classpath command failed "cd ${cwd} && ${cmd}"`, 'error');
+      deleteClasspathFile(storagePath);
       return null;
     }
   }
 
   fileContent = fs.readFileSync(classpathFilePath, 'utf8');
   if (!fileContent) {
+    getLogger().warn(`buildClasspath: Empty classpath file generated? Deleting [${storagePath}]`);
     deleteClasspathFile(storagePath);
     return null;
   }
@@ -121,7 +126,7 @@ async function findNearestBuildFile(filepath: string): Promise<string | undefine
 async function findGradleCmd(): Promise<string | null> {
   try {
     return path.resolve(
-      extensions.getExtension('coc-groovy').extension.extensionPath,
+      getContext().extensionPath,
       'utils',
       'gradle-classpath',
       'bin',

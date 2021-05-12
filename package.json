@@ -55,6 +55,7 @@
     "find-java-home": "1.2.0",
     "find-up": "^5.0.0",
     "glob": "^7.1.7",
+    "log4js": "^6.3.0",
     "np": "7.5.0",
     "npm-run-all": "^4.1.5",
     "path-exists": "^4.0.0",

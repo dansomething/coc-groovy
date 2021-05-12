@@ -1,4 +1,4 @@
-import { commands, ExtensionContext, LanguageClient, workspace, Uri } from 'coc.nvim';
+import { commands, ExtensionContext, LanguageClient, Uri, workspace } from 'coc.nvim';
 import { createHash } from 'crypto';
 import * as path from 'path';
 import { DidChangeConfigurationNotification, Disposable } from 'vscode-languageserver-protocol';
@@ -6,6 +6,7 @@ import { getClasspath } from './classpath';
 import { getClientOptions } from './client';
 import { Commands } from './commands';
 import { GROOVY, PLUGIN_NAME } from './constants';
+import { setContext } from './context';
 import { RequirementsData, resolveRequirements } from './requirements';
 import { getServerOptions } from './server';
 import { getTempWorkspace } from './system';
@@ -15,6 +16,7 @@ let languageClientDisposable: Disposable;
 let storagePath: string;
 
 export async function activate(context: ExtensionContext): Promise<void> {
+  setContext(context);
   storagePath = getStoragePath(context);
   let requirements: RequirementsData;
   try {

@@ -2,6 +2,7 @@ import { Executable, ExtensionContext, workspace } from 'coc.nvim';
 import * as glob from 'glob';
 import * as path from 'path';
 import { GROOVY, PLUGIN_NAME } from './constants';
+import { getLogger } from './context';
 import { RequirementsData, ServerConfiguration } from './requirements';
 import { Settings } from './settings';
 import { DEBUG, JAVA_FILENAME } from './system';
@@ -30,8 +31,7 @@ function prepareExecutable(requirements: RequirementsData, config: ServerConfigu
   executable.options = options;
   executable.command = path.resolve(requirements.java_home, 'bin', JAVA_FILENAME);
   executable.args = prepareParams(config);
-  // tslint:disable-next-line: no-console
-  console.log(`Starting ${PLUGIN_NAME} with: ` + executable.command + ' ' + executable.args?.join(' '));
+  getLogger().info(`Starting ${PLUGIN_NAME} with: ` + executable.command + ' ' + executable.args?.join(' '));
   return executable;
 }
 
