@@ -93,7 +93,7 @@ async function updateClasspath(forceUpdate?: boolean): Promise<void> {
   });
 }
 
-async function getCurrentFileClasspath(forceUpdate?: boolean): Promise<string[]> {
+async function getCurrentFileClasspath(forceUpdate = false): Promise<string[]> {
   const { document } = await workspace.getCurrentState();
   const uri = Uri.parse(document.uri);
   const filepath = uri.fsPath;

@@ -15,7 +15,7 @@ const TOOL_MVN = 'mvn';
 // Cache the Maven generated classpath to improve initial load time.
 let builtClassPath: string[] | null;
 
-export async function getClasspath(storagePath: string, filepath: string, forceUpdate?: boolean): Promise<string[]> {
+export async function getClasspath(storagePath: string, filepath: string, forceUpdate: boolean): Promise<string[]> {
   if (forceUpdate) {
     builtClassPath = null;
     deleteClasspathFile(storagePath);
