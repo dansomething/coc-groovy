@@ -21,7 +21,6 @@ export async function activate(context: ExtensionContext): Promise<void> {
   let requirements: RequirementsData;
   try {
     requirements = await resolveRequirements();
-    await getCurrentFileClasspath(); // called here to optimize startup time
     workspace.showMessage(
       `${PLUGIN_NAME} using Java from ${requirements.java_home}, version: ${requirements.java_version}`,
       'more'

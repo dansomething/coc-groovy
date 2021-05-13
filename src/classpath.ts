@@ -12,19 +12,12 @@ const SEPARATOR = IS_WINDOWS ? ';' : ':';
 const TOOL_GRADLE = 'gradle';
 const TOOL_MVN = 'mvn';
 
-// Cache the Maven generated classpath to improve initial load time.
-let builtClassPath: string[] | null;
-
 export async function getClasspath(storagePath: string, filepath: string, forceUpdate: boolean): Promise<string[]> {
   if (forceUpdate) {
-    builtClassPath = null;
-    deleteClasspathFile(storagePath);
     workspace.showMessage('Resetting loaded libraries.');
   }
 
-  if (!builtClassPath) {
-    builtClassPath = await getBuiltClasspath(storagePath, filepath);
-  }
+  const builtClassPath = await getBuiltClasspath(storagePath, filepath, forceUpdate);
 
   const config = workspace.getConfiguration(GROOVY);
   let classpath: Array<string> | string = config.get<string[]>(Settings.REFERENCED_LIBRARIES, []);
@@ -38,7 +31,11 @@ export async function getClasspath(storagePath: string, filepath: string, forceU
   return classpath;
 }
 
-export async function getBuiltClasspath(storagePath: string, filepath: string): Promise<string[] | null> {
+export async function getBuiltClasspath(
+  storagePath: string,
+  filepath: string,
+  forceUpdate: boolean
+): Promise<string[] | null> {
   const buildFile = await findNearestBuildFile(filepath);
   if (!buildFile) {
     getLogger().info('getBuiltClasspath: No build file was found to use for classpath generation.');
@@ -48,7 +45,7 @@ export async function getBuiltClasspath(storagePath: string, filepath: string): 
   const cwd = path.dirname(buildFile);
   const buildTool = buildFile.includes('pom') ? TOOL_MVN : TOOL_GRADLE;
   workspace.showMessage(`${PLUGIN_NAME} project [${path.basename(cwd)}] loading libraries with [${buildTool}]...`);
-  return buildClasspath(storagePath, cwd, buildTool);
+  return buildClasspath(storagePath, cwd, buildTool, forceUpdate);
 }
 
 function getClasspathFilePath(storagePath: string): string {
@@ -60,51 +57,49 @@ function deleteClasspathFile(storagePath: string): void {
   workspace.deleteFile(getClasspathFilePath(storagePath), { ignoreIfNotExists: true });
 }
 
-async function buildClasspath(storagePath: string, cwd: string, tool: string): Promise<string[] | null> {
+async function buildClasspath(
+  storagePath: string,
+  cwd: string,
+  tool: string,
+  forceUpdate: boolean
+): Promise<string[] | null> {
   const classpathFilePath = getClasspathFilePath(storagePath);
-  let fileContent: string | null = null;
 
-  if (fs.existsSync(classpathFilePath)) {
-    fileContent = fs.readFileSync(classpathFilePath, 'utf8');
-  }
-
-  if (!fileContent) {
-    let cmd: string;
-    if (tool === TOOL_MVN) {
-      const mvnCmd = await findMvnCmd();
-      if (!mvnCmd) {
-        return null;
-      }
-      cmd = `${mvnCmd} dependency:build-classpath -Dmdep.pathSeparator='${SEPARATOR}' -Dmdep.outputFile=${classpathFilePath}`;
-    } else if (tool === TOOL_GRADLE) {
-      const gradleCmd = await findGradleCmd();
-      if (!gradleCmd) {
-        return null;
-      }
-      cmd = `${gradleCmd} --path-separator=${SEPARATOR} --output-file=${classpathFilePath}`;
-    } else {
+  let cmd: string;
+  if (tool === TOOL_MVN) {
+    const mvnCmd = await findMvnCmd();
+    if (!mvnCmd) {
       return null;
     }
+    cmd = `${mvnCmd} dependency:build-classpath -Dmdep.pathSeparator='${SEPARATOR}' -Dmdep.outputFile=${classpathFilePath} -Dmdep.regenerateFile=${forceUpdate}`;
+  } else if (tool === TOOL_GRADLE) {
+    const gradleCmd = await findGradleCmd();
+    if (!gradleCmd) {
+      return null;
+    }
+    cmd = `${gradleCmd} --path-separator=${SEPARATOR} --output-file=${classpathFilePath} --regenerate-file=${forceUpdate}`;
+  } else {
+    return null;
+  }
 
-    try {
-      getLogger().debug(`buildClasspath cwd: ${cwd}`);
-      getLogger().debug(`buildClasspath cmd: ${cmd}`);
-      const result = await workspace.runCommand(cmd, cwd);
-      if (!result?.includes('BUILD SUCCESS')) {
-        getLogger().warn(`buildClasspath: cmd failed [${result}]`);
-        deleteClasspathFile(storagePath);
-        return null;
-      }
-    } catch (e) {
-      // The maven operation failed for some reason so there's nothing we can do.
-      getLogger().warn(`buildClasspath: cmd failed [${JSON.stringify(e)}]`);
-      workspace.showMessage(`${PLUGIN_NAME} classpath command failed "cd ${cwd} && ${cmd}"`, 'error');
+  try {
+    getLogger().debug(`buildClasspath cwd: ${cwd}`);
+    getLogger().debug(`buildClasspath cmd: ${cmd}`);
+    const result = await workspace.runCommand(cmd, cwd);
+    if (!result?.includes('BUILD SUCCESS')) {
+      getLogger().warn(`buildClasspath: cmd failed [${result}]`);
       deleteClasspathFile(storagePath);
       return null;
     }
+  } catch (e) {
+    // The maven operation failed for some reason so there's nothing we can do.
+    getLogger().warn(`buildClasspath: cmd failed [${JSON.stringify(e)}]`);
+    workspace.showMessage(`${PLUGIN_NAME} classpath command failed "cd ${cwd} && ${cmd}"`, 'error');
+    deleteClasspathFile(storagePath);
+    return null;
   }
 
-  fileContent = fs.readFileSync(classpathFilePath, 'utf8');
+  const fileContent = fs.readFileSync(classpathFilePath, 'utf8');
   if (!fileContent) {
     getLogger().warn(`buildClasspath: Empty classpath file generated? Deleting [${storagePath}]`);
     deleteClasspathFile(storagePath);
