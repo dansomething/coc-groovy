@@ -16,6 +16,9 @@ let languageClientDisposable: Disposable;
 let storagePath: string;
 
 export async function activate(context: ExtensionContext): Promise<void> {
+  const config = workspace.getConfiguration(GROOVY);
+  if (!config.enable) return;
+
   setContext(context);
   storagePath = getStoragePath(context);
   let requirements: RequirementsData;

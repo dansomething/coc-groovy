@@ -94,6 +94,11 @@
       "type": "object",
       "title": "Groovy configuration",
       "properties": {
+        "groovy.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable the coc-groovy extension."
+        },
         "groovy.java.home": {
           "type": [
             "string",

@@ -32,6 +32,7 @@ The following coc.nvim commands are available:
 
 The following settings are supported:
 
+- `groovy.enable` : Enable the coc-groovy extension, default: `true`
 - `groovy.java.home` : The absolute path to the JDK 8+ home directory. This is used to launch the Groovy language server. Requires a coc server restart.
 - `groovy.ls.vmargs` : Extra Java VM arguments used to launch the Groovy language server. Requires a coc server restart.
 - `groovy.ls.home` : The absolute path to the Groovy language server. This would be used instead of the bundled server when specified.

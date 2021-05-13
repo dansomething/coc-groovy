@@ -5,6 +5,7 @@ import findJavaHome from 'find-java-home';
 import fs from 'fs';
 import path from 'path';
 import pathExists from 'path-exists';
+import { GROOVY } from './constants';
 import { Settings } from './settings';
 import { JAVAC_FILENAME, JAVA_FILENAME } from './system';
 
@@ -80,7 +81,7 @@ function checkJavaRuntime(): Promise<string> {
 }
 
 function readJavaHomeConfig(): string | undefined {
-  const config = workspace.getConfiguration('groovy');
+  const config = workspace.getConfiguration(GROOVY);
   return config.get<string | undefined>(Settings.JAVA_HOME, undefined);
 }
 
