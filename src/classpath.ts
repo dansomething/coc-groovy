@@ -64,36 +64,26 @@ async function buildClasspath(
   forceUpdate: boolean
 ): Promise<string[] | null> {
   const classpathFilePath = getClasspathFilePath(storagePath);
+  const cmd = await getBuildCmd(tool, cwd, classpathFilePath, forceUpdate);
 
-  let cmd: string;
-  if (tool === TOOL_MVN) {
-    const mvnCmd = await findMvnCmd();
-    if (!mvnCmd) {
-      return null;
-    }
-    cmd = `${mvnCmd} dependency:build-classpath -Dmdep.pathSeparator='${SEPARATOR}' -Dmdep.outputFile=${classpathFilePath} -Dmdep.regenerateFile=${forceUpdate}`;
-  } else if (tool === TOOL_GRADLE) {
-    const gradleCmd = await findGradleCmd();
-    if (!gradleCmd) {
-      return null;
-    }
-    cmd = `${gradleCmd} --path-separator=${SEPARATOR} --output-file=${classpathFilePath} --regenerate-file=${forceUpdate}`;
-  } else {
+  if (!cmd) {
+    getLogger().warn(`buildClassPath: Failed to find build command for [${tool}] [${cwd}]`);
     return null;
   }
 
+  getLogger().debug(`buildClasspath cwd: ${cwd}`);
+  getLogger().debug(`buildClasspath cmd: ${cmd}`);
+
   try {
-    getLogger().debug(`buildClasspath cwd: ${cwd}`);
-    getLogger().debug(`buildClasspath cmd: ${cmd}`);
     const result = await workspace.runCommand(cmd, cwd);
     if (!result?.includes('BUILD SUCCESS')) {
-      getLogger().warn(`buildClasspath: cmd failed [${result}]`);
+      getLogger().warn(`buildClasspath: build tool failed [${cmd}]. Result [${result}]`);
       deleteClasspathFile(storagePath);
       return null;
     }
   } catch (e) {
-    // The maven operation failed for some reason so there's nothing we can do.
-    getLogger().warn(`buildClasspath: cmd failed [${JSON.stringify(e)}]`);
+    // The build tool operation failed for some reason so there's nothing we can do.
+    getLogger().warn(`buildClasspath: build tool failed [${cmd}]. Error [${JSON.stringify(e)}]`);
     workspace.showMessage(`${PLUGIN_NAME} classpath command failed "cd ${cwd} && ${cmd}"`, 'error');
     deleteClasspathFile(storagePath);
     return null;
@@ -109,11 +99,34 @@ async function buildClasspath(
   return fileContent.split(SEPARATOR).sort();
 }
 
+async function getBuildCmd(
+  tool: string,
+  cwd: string,
+  classpathFilePath: string,
+  forceUpdate: boolean
+): Promise<string | null> {
+  let cmd: string | null = null;
+
+  if (tool === TOOL_MVN) {
+    const mvnCmd = await findMvnCmd(cwd);
+    if (mvnCmd) {
+      cmd = `${mvnCmd} dependency:build-classpath -Dmdep.pathSeparator='${SEPARATOR}' -Dmdep.outputFile=${classpathFilePath} -Dmdep.regenerateFile=${forceUpdate}`;
+    }
+  } else if (tool === TOOL_GRADLE) {
+    const gradleCmd = await findGradleCmd();
+    if (gradleCmd) {
+      cmd = `${gradleCmd} --path-separator=${SEPARATOR} --output-file=${classpathFilePath} --regenerate-file=${forceUpdate}`;
+    }
+  }
+
+  return cmd;
+}
+
 async function findNearestBuildFile(filepath: string): Promise<string | undefined> {
-  const filedir = path.dirname(filepath);
-  let buildFile = await findUp('pom.xml', { cwd: filedir });
+  const cwd = path.dirname(filepath);
+  let buildFile = await findUp('pom.xml', { cwd });
   if (!buildFile) {
-    buildFile = await findUp('build.gradle', { cwd: filedir });
+    buildFile = await findUp('build.gradle', { cwd });
   }
   return buildFile;
 }
@@ -127,23 +140,26 @@ async function findGradleCmd(): Promise<string | null> {
       'bin',
       'gradle-classpath' + (IS_WINDOWS ? '.bat' : '')
     );
-  } catch (_e) {
-    // noop
+  } catch (e) {
+    getLogger().error(`findGradleCmnd: Gradle classpath command failed. Error [${JSON.stringify(e)}]`);
   }
 
   return null;
 }
 
-async function findMvnCmd(): Promise<string | null> {
+async function findMvnCmd(cwd: string): Promise<string | undefined> {
   try {
-    const mvn = IS_WINDOWS ? 'mvn.cmd' : 'mvn';
+    const mvnw = IS_WINDOWS ? 'mvnw.cmd' : 'mvnw';
+    let mvn = await findUp(mvnw, { cwd });
+    if (!mvn) {
+      mvn = IS_WINDOWS ? 'mvn.cmd' : 'mvn';
+    }
+
     const mvnVersion = await workspace.runCommand(`${mvn} --version`);
     if (mvnVersion.match(/Apache Maven \d\.\d+\.\d+/)) {
       return mvn;
     }
-  } catch (_e) {
-    // noop
+  } catch (e) {
+    getLogger().error(`findMvnCmnd: Maven version check failed. Error [${JSON.stringify(e)}]`);
   }
-
-  return null;
 }
