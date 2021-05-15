@@ -124,6 +124,7 @@ async function getBuildCmd(
 
 async function findNearestBuildFile(filepath: string): Promise<string | undefined> {
   const cwd = path.dirname(filepath);
+  getLogger().debug(`findNearestBuildFile: cwd [${cwd}]`);
   let buildFile = await findUp('pom.xml', { cwd });
   if (!buildFile) {
     buildFile = await findUp('build.gradle', { cwd });
