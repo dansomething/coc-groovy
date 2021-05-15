@@ -110,7 +110,7 @@ async function getBuildCmd(
   if (tool === TOOL_MVN) {
     const mvnCmd = await findMvnCmd(cwd);
     if (mvnCmd) {
-      cmd = `${mvnCmd} dependency:build-classpath -Dmdep.pathSeparator='${SEPARATOR}' -Dmdep.outputFile=${classpathFilePath} -Dmdep.regenerateFile=${forceUpdate}`;
+      cmd = `${mvnCmd} dependency:build-classpath -Dmdep.pathSeparator=${SEPARATOR} -Dmdep.outputFile=${classpathFilePath} -Dmdep.regenerateFile=${forceUpdate}`;
     }
   } else if (tool === TOOL_GRADLE) {
     const gradleCmd = await findGradleCmd();
