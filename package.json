@@ -15,7 +15,7 @@
     "/README.md",
     "/lib",
     "/server",
-    "utils"
+    "utils/gradle-classpath"
   ],
   "keywords": [
     "coc.nvim",
