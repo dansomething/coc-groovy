@@ -35,6 +35,7 @@
     "lint": "eslint src --ext ts",
     "prepare": "npm-run-all clean build",
     "release": "np",
+    "update-gradle-classpath": "./utils/update-gradle-classpath",
     "watch": "webpack --watch"
   },
   "prettier": {
