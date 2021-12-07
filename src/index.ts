@@ -29,7 +29,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
       'more'
     );
     return startLanguageServer(context, requirements);
-  } catch (e) {
+  } catch (e: any) {
     const res = await workspace.showQuickpick(['Yes', 'No'], `${e.message}, ${e.label}?`);
     if (res == 0) {
       commands.executeCommand(Commands.OPEN_BROWSER, e.openUrl).catch(() => {

@@ -4,7 +4,7 @@ import expandHomeDir from 'expand-home-dir';
 import findJavaHome from 'find-java-home';
 import fs from 'fs';
 import path from 'path';
-import pathExists from 'path-exists';
+import { pathExistsSync } from 'path-exists';
 import { GROOVY } from './constants';
 import { Settings } from './settings';
 import { JAVAC_FILENAME, JAVA_FILENAME } from './system';
@@ -61,10 +61,10 @@ function checkJavaRuntime(): Promise<string> {
       if (stat.isSymbolicLink()) {
         home = fs.realpathSync(home);
       }
-      if (!pathExists.sync(home)) {
+      if (!pathExistsSync(home)) {
         openJDKDownload(reject, source + ' points to a missing folder');
       }
-      if (!pathExists.sync(path.resolve(home, 'bin', JAVAC_FILENAME))) {
+      if (!pathExistsSync(path.resolve(home, 'bin', JAVAC_FILENAME))) {
         openJDKDownload(reject, source + ' does not point to a JDK.');
       }
       return resolve(home);
