@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -eou pipefail
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+GROOVY_LSP_DIR="${DIR}/../../groovy-language-server"
+
+pushd "${GROOVY_LSP_DIR}" &>/dev/null || exit
+git pull
+./gradlew clean build
+popd &>/dev/null || exit
+
+cp -v "${GROOVY_LSP_DIR}/build/libs/groovy-language-server-all.jar" "${DIR}/../server/"
