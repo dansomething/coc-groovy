@@ -6,6 +6,6 @@ GRADLE_CLASSPATH_DIR="${DIR}/../../gradle-classpath"
 
 pushd "${GRADLE_CLASSPATH_DIR}" &>/dev/null || exit
 "${GRADLE_CLASSPATH_DIR}/gradlew" clean installDist
-popd || exit
+popd &>/dev/null || exit
 
 rsync --delete --archive --verbose "${GRADLE_CLASSPATH_DIR}/build/install/gradle-classpath/" "${DIR}/gradle-classpath/"
