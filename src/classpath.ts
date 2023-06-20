@@ -1,5 +1,5 @@
 import { workspace } from 'coc.nvim';
-import findUp from 'find-up';
+import { findUp } from 'find-up';
 import fs from 'fs';
 import * as path from 'path';
 import { GROOVY, PLUGIN_NAME } from './constants';

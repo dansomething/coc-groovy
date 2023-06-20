@@ -6,6 +6,7 @@ import fs from 'fs';
 import path from 'path';
 import { pathExistsSync } from 'path-exists';
 import { GROOVY } from './constants';
+import { getLogger } from './context';
 import { Settings } from './settings';
 import { JAVAC_FILENAME, JAVA_FILENAME } from './system';
 
@@ -70,8 +71,9 @@ function checkJavaRuntime(): Promise<string> {
       return resolve(home);
     }
     // No settings, let's try to detect as last resort.
-    findJavaHome((err, home) => {
+    findJavaHome({ allowJre: true }, (err, home) => {
       if (err) {
+        getLogger().error(`findJavaHome: No Java runtime found. Error [${JSON.stringify(err)}]`);
         openJDKDownload(reject, 'Java runtime could not be located');
       } else {
         resolve(home);
