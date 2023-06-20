@@ -67,7 +67,7 @@ goto fail
 :execute
 @rem Setup the command line
 
-set CLASSPATH=%APP_HOME%\lib\gradle-classpath-1.2.0.jar;%APP_HOME%\lib\gradle-tooling-api-7.5.1.jar;%APP_HOME%\lib\picocli-4.6.3.jar;%APP_HOME%\lib\slf4j-simple-1.7.36.jar;%APP_HOME%\lib\slf4j-api-1.7.36.jar
+set CLASSPATH=%APP_HOME%\lib\gradle-classpath-1.3.0.jar;%APP_HOME%\lib\gradle-tooling-api-8.1.1.jar;%APP_HOME%\lib\picocli-4.7.4.jar;%APP_HOME%\lib\slf4j-simple-1.7.36.jar;%APP_HOME%\lib\slf4j-api-1.7.36.jar
 
 
 @rem Execute gradle-classpath
