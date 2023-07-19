@@ -33,6 +33,7 @@
   "scripts": {
     "build": "webpack",
     "clean": "rimraf lib",
+    "fix": "eslint src --ext ts --fix",
     "lint": "eslint src --ext ts",
     "prepare": "npm-run-all clean build",
     "release": "np --no-tests",

@@ -34,7 +34,7 @@ export async function getClasspath(storagePath: string, filepath: string, forceU
 export async function getBuiltClasspath(
   storagePath: string,
   filepath: string,
-  forceUpdate: boolean
+  forceUpdate: boolean,
 ): Promise<string[] | null> {
   const buildFile = await findNearestBuildFile(filepath);
   if (!buildFile) {
@@ -61,7 +61,7 @@ async function buildClasspath(
   storagePath: string,
   cwd: string,
   tool: string,
-  forceUpdate: boolean
+  forceUpdate: boolean,
 ): Promise<string[] | null> {
   const classpathFilePath = getClasspathFilePath(storagePath);
   const cmd = await getBuildCmd(tool, cwd, classpathFilePath, forceUpdate);
@@ -103,7 +103,7 @@ async function getBuildCmd(
   tool: string,
   cwd: string,
   classpathFilePath: string,
-  forceUpdate: boolean
+  forceUpdate: boolean,
 ): Promise<string | null> {
   let cmd: string | null = null;
 
@@ -139,7 +139,7 @@ async function findGradleCmd(): Promise<string | null> {
       'utils',
       'gradle-classpath',
       'bin',
-      'gradle-classpath' + (IS_WINDOWS ? '.bat' : '')
+      'gradle-classpath' + (IS_WINDOWS ? '.bat' : ''),
     );
   } catch (e) {
     getLogger().error(`findGradleCmnd: Gradle classpath command failed. Error [${JSON.stringify(e)}]`);

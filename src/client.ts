@@ -17,7 +17,7 @@ export function getClientOptions(onConfigChange: () => void): LanguageClientOpti
       workspace: {
         didChangeConfiguration: (
           sections: string[] | undefined,
-          didChangeConfiguration: (sections: string[] | undefined) => void
+          didChangeConfiguration: (sections: string[] | undefined) => void,
         ) => {
           if (sections?.length == 1 && sections[0] === GROOVY) {
             onConfigChange();

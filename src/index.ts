@@ -26,7 +26,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
     requirements = await resolveRequirements();
     workspace.showMessage(
       `${PLUGIN_NAME} using Java from ${requirements.java_home}, version: ${requirements.java_version}`,
-      'more'
+      'more',
     );
     return startLanguageServer(context, requirements);
   } catch (e: any) {
@@ -68,7 +68,7 @@ async function startLanguageServer(context: ExtensionContext, requirements: Requ
     },
     (e) => {
       context.logger.error(e.message);
-    }
+    },
   );
 
   workspace.showMessage(`${PLUGIN_NAME} starting...`);

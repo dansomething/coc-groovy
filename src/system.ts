@@ -12,7 +12,7 @@ function startedInDebugMode(): boolean {
   const args = process.execArgv;
   if (args) {
     return args.some(
-      (arg: string) => /^--debug=?/.test(arg) || /^--debug-brk=?/.test(arg) || /^--inspect-brk=?/.test(arg)
+      (arg: string) => /^--debug=?/.test(arg) || /^--debug-brk=?/.test(arg) || /^--inspect-brk=?/.test(arg),
     );
   }
   return false;
