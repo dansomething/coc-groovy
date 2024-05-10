@@ -3,15 +3,6 @@
 An [extension for coc.nvim](https://github.com/neoclide/coc.nvim/wiki/Using-coc-extensions) to enable
 [Groovy language server](https://github.com/prominic/groovy-language-server) support.
 
-## Quick Start
-
-1. Download and install a recent Java Development Kit (latest Java 8 is the minimum requirement).
-2. Install this extension by running this command in Vim:
-```
-  :CocInstall coc-groovy
-```
-3. This extension is activated when you first open a Groovy file.
-
 ## Features
 
 - Maven and Gradle project support
@@ -21,6 +12,25 @@ An [extension for coc.nvim](https://github.com/neoclide/coc.nvim/wiki/Using-coc-
 - Highlights
 - Refactor Rename
 - Signature Hover
+
+## Quick Start
+
+1. Download and install a recent Java Development Kit (latest Java 8 is the minimum requirement).
+2. Install this extension by running this command in Vim:
+```
+  :CocInstall coc-groovy
+```
+3. This extension is activated when you first open a Groovy file.
+
+## Dependencies
+
+### Maven Projects
+
+Maven project support requires having the [Maven Wrapper][0] installed in your
+project or having [Maven][1] installed on your environment path.
+
+* [Maven Wrapper][0]
+* [Installing Maven][1]
 
 ## Available commands
 
@@ -51,3 +61,6 @@ The path to the Java Development Kit is searched in the following order:
 ## License
 
 EPL 2.0, See [LICENSE](LICENSE) for more information.
+
+[0]: https://maven.apache.org/wrapper/
+[1]: https://maven.apache.org/install.html
