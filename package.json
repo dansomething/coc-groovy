@@ -112,6 +112,11 @@
           "description": "Specifies the folder path to the JDK (8 or more recent) used to launch the Groovy Language Server.\nOn Windows, backslashes must be escaped, i.e.\n\"groovy.home\":\"C:\\\\Program Files\\\\Java\\\\jdk1.8.0_161\"",
           "scope": "window"
         },
+        "groovy.ls.feature.noRoot": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enables the Groovy language server to provide language features for standalone .groovy files outside of a workspace root."
+        },
         "groovy.ls.vmargs": {
           "type": [
             "string",
