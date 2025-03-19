@@ -1,7 +1,7 @@
 import { StaticFeature, workspace } from 'coc.nvim';
 import { InitializeParams } from 'vscode-languageserver-protocol';
 import { GROOVY } from './constants';
-import { Settings } from './settings';
+import * as Settings from './settings';
 
 /**
  * Feature to support Groovy language server features on `.groovy` files that don't have a workspace root.
@@ -21,4 +21,6 @@ export class NoRootFeature implements StaticFeature {
   public fillClientCapabilities(): void {}
 
   public initialize(): void {}
+
+  public dispose(): void {}
 }
