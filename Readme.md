@@ -17,9 +17,11 @@ An [extension for coc.nvim](https://github.com/neoclide/coc.nvim/wiki/Using-coc-
 
 1. Download and install a recent Java Development Kit (latest Java 8 is the minimum requirement).
 2. Install this extension by running this command in Vim:
-```
-  :CocInstall coc-groovy
-```
+
+   ```sh
+   :CocInstall coc-groovy
+   ```
+
 3. This extension is activated when you first open a Groovy file.
 
 ## Dependencies
@@ -29,8 +31,8 @@ An [extension for coc.nvim](https://github.com/neoclide/coc.nvim/wiki/Using-coc-
 Maven project support requires having the [Maven Wrapper][0] installed in your
 project or having [Maven][1] installed on your environment path.
 
-* [Maven Wrapper][0]
-* [Installing Maven][1]
+- [Maven Wrapper][0]
+- [Installing Maven][1]
 
 ## Available commands
 
