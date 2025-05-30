@@ -7,7 +7,7 @@ import path from 'path';
 import { pathExistsSync } from 'path-exists';
 import { GROOVY } from './constants';
 import { getLogger } from './context';
-import { Settings } from './settings';
+import * as Settings from './settings';
 import { JAVAC_FILENAME, JAVA_FILENAME } from './system';
 
 export interface ServerConfiguration {
@@ -21,7 +21,7 @@ export interface RequirementsData {
   java_version: number;
 }
 
-interface ErrorData {
+export interface ErrorData {
   message: string;
   label: string;
   openUrl: Uri;
@@ -122,7 +122,7 @@ function parseMajorVersion(content: string): number {
   return javaVersion;
 }
 
-function openJDKDownload(reject: (reason?: any) => void, cause: string): void {
+function openJDKDownload(reject: (reason?: ErrorData) => void, cause: string): void {
   let jdkUrl = 'https://developers.redhat.com/products/openjdk/download/?sc_cid=701f2000000RWTnAAO';
   if (process.platform === 'darwin') {
     jdkUrl = 'http://www.oracle.com/technetwork/java/javase/downloads/index.html';
