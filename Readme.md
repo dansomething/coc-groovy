@@ -49,6 +49,7 @@ The following settings are supported:
 - `groovy.ls.vmargs` : Extra Java VM arguments used to launch the Groovy language server. Requires a coc server restart.
 - `groovy.ls.home` : The absolute path to the Groovy language server. This would be used instead of the bundled server when specified.
 - `groovy.project.referencedLibraries` : Configure additional paths (jar file or directory) for referencing libraries in a Groovy project. Note, Maven and Gradle projects will have their classpath automatically added.
+  - Example: `["/path/to/lib.jar", "/path/to/lib/*"]`
 - `groovy.trace.server` : Traces the communication between the coc-groovy extension and the Groovy language server.
 
 ## Setting the JDK
