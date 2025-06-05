@@ -4,10 +4,10 @@ import * as path from 'path';
 import { DidChangeConfigurationNotification, Disposable } from 'vscode-languageserver-protocol';
 import { getClasspath } from './classpath';
 import { getClientOptions } from './client';
-import { Commands } from './commands';
+import * as Commands from './commands';
 import { GROOVY, PLUGIN_NAME } from './constants';
 import { setContext } from './context';
-import { RequirementsData, resolveRequirements } from './requirements';
+import { ErrorData, RequirementsData, resolveRequirements } from './requirements';
 import { getServerOptions } from './server';
 import { getTempWorkspace } from './system';
 
@@ -29,7 +29,8 @@ export async function activate(context: ExtensionContext): Promise<void> {
       'more',
     );
     return startLanguageServer(context, requirements);
-  } catch (e: any) {
+  } catch (err: unknown) {
+    const e = err as ErrorData;
     const res = await workspace.showQuickpick(['Yes', 'No'], `${e.message}, ${e.label}?`);
     if (res == 0) {
       commands.executeCommand(Commands.OPEN_BROWSER, e.openUrl).catch(() => {

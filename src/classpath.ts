@@ -4,7 +4,7 @@ import fs from 'fs';
 import * as path from 'path';
 import { GROOVY, PLUGIN_NAME } from './constants';
 import { getContext, getLogger } from './context';
-import { Settings } from './settings';
+import * as Settings from './settings';
 import { IS_WINDOWS } from './system';
 
 const CLASSPATH_FILE = '.groovy-classpath';

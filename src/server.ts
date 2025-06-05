@@ -4,7 +4,7 @@ import * as path from 'path';
 import { GROOVY, PLUGIN_NAME } from './constants';
 import { getLogger } from './context';
 import { RequirementsData, ServerConfiguration } from './requirements';
-import { Settings } from './settings';
+import * as Settings from './settings';
 import { DEBUG, JAVA_FILENAME } from './system';
 
 export async function getServerOptions(context: ExtensionContext, requirements: RequirementsData): Promise<Executable> {
@@ -62,7 +62,7 @@ function prepareParams(config: ServerConfiguration): string[] | undefined {
   return params;
 }
 
-function parseVmArgs(params: any[], vmargsLine: string): void {
+function parseVmArgs(params: string[], vmargsLine: string): void {
   if (!vmargsLine) {
     return;
   }

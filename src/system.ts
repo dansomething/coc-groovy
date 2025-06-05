@@ -5,7 +5,7 @@ export const IS_WINDOWS = process.platform.indexOf('win') === 0;
 export const JAVAC_FILENAME = 'javac' + (IS_WINDOWS ? '.exe' : '');
 export const JAVA_FILENAME = 'java' + (IS_WINDOWS ? '.exe' : '');
 
-declare let v8debug: any;
+declare let v8debug: object | undefined;
 export const DEBUG = typeof v8debug === 'object' || startedInDebugMode();
 
 function startedInDebugMode(): boolean {
