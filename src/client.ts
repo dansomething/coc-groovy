@@ -1,4 +1,4 @@
-import { LanguageClientOptions, workspace } from 'coc.nvim';
+import { DidChangeConfigurationSignature, LanguageClientOptions, workspace } from 'coc.nvim';
 import { GROOVY } from './constants';
 
 export function getClientOptions(onConfigChange: () => void): LanguageClientOptions {
@@ -15,14 +15,11 @@ export function getClientOptions(onConfigChange: () => void): LanguageClientOpti
     },
     middleware: {
       workspace: {
-        didChangeConfiguration: (
-          sections: string[] | undefined,
-          didChangeConfiguration: (sections: string[] | undefined) => void,
-        ) => {
+        didChangeConfiguration: (sections: string[] | undefined, next: DidChangeConfigurationSignature): void => {
           if (sections?.length == 1 && sections[0] === GROOVY) {
             onConfigChange();
           } else {
-            didChangeConfiguration(sections);
+            next(sections);
           }
         },
       },
