@@ -1,3 +1,4 @@
+import { window } from 'coc.nvim';
 import { commands, ExtensionContext, LanguageClient, Uri, workspace } from 'coc.nvim';
 import { createHash } from 'crypto';
 import * as path from 'path';
@@ -24,14 +25,13 @@ export async function activate(context: ExtensionContext): Promise<void> {
   let requirements: RequirementsData;
   try {
     requirements = await resolveRequirements();
-    workspace.showMessage(
+    window.showInformationMessage(
       `${PLUGIN_NAME} using Java from ${requirements.java_home}, version: ${requirements.java_version}`,
-      'more',
     );
     return startLanguageServer(context, requirements);
   } catch (err: unknown) {
     const e = err as ErrorData;
-    const res = await workspace.showQuickpick(['Yes', 'No'], `${e.message}, ${e.label}?`);
+    const res = await window.showQuickpick(['Yes', 'No'], `${e.message}, ${e.label}?`);
     if (res == 0) {
       commands.executeCommand(Commands.OPEN_BROWSER, e.openUrl).catch(() => {
         // noop
@@ -60,11 +60,10 @@ async function startLanguageServer(context: ExtensionContext, requirements: Requ
   const clientOptions = getClientOptions(updateClasspath);
   const serverOptions = await getServerOptions(context, requirements);
   languageClient = new LanguageClient(GROOVY, PLUGIN_NAME, serverOptions, clientOptions);
-  languageClient.registerProposedFeatures();
 
   languageClient.onReady().then(
     () => {
-      workspace.showMessage(`${PLUGIN_NAME} started!`);
+      window.showInformationMessage(`${PLUGIN_NAME} started!`);
       registerCommands(context);
     },
     (e) => {
@@ -72,7 +71,7 @@ async function startLanguageServer(context: ExtensionContext, requirements: Requ
     },
   );
 
-  workspace.showMessage(`${PLUGIN_NAME} starting...`);
+  window.showInformationMessage(`${PLUGIN_NAME} starting...`);
   languageClientDisposable = languageClient.start();
 }
 
@@ -82,7 +81,7 @@ function registerCommands(context: ExtensionContext): void {
 
 async function updateProjectConfig(): Promise<void> {
   await updateClasspath(true);
-  workspace.showMessage(`${PLUGIN_NAME} project config updated.`);
+  window.showInformationMessage(`${PLUGIN_NAME} project config updated.`);
 }
 
 async function updateClasspath(forceUpdate?: boolean): Promise<void> {
@@ -91,7 +90,7 @@ async function updateClasspath(forceUpdate?: boolean): Promise<void> {
   const groovy = { ...config, classpath };
   // The Groovy language server only loads the classpath from a config change notification.
   // Ideally this would also be loaded with initializationOptions too.
-  languageClient?.sendNotification(DidChangeConfigurationNotification.type, {
+  languageClient?.sendNotification(DidChangeConfigurationNotification.method, {
     settings: { groovy },
   });
 }

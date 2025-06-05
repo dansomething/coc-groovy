@@ -1,3 +1,4 @@
+import { window } from 'coc.nvim';
 import { workspace } from 'coc.nvim';
 import { findUp } from 'find-up';
 import fs from 'fs';
@@ -14,7 +15,7 @@ const TOOL_MVN = 'mvn';
 
 export async function getClasspath(storagePath: string, filepath: string, forceUpdate: boolean): Promise<string[]> {
   if (forceUpdate) {
-    workspace.showMessage('Resetting loaded libraries.');
+    window.showInformationMessage('Resetting loaded libraries.');
   }
 
   const builtClassPath = await getBuiltClasspath(storagePath, filepath, forceUpdate);
@@ -28,6 +29,7 @@ export async function getClasspath(storagePath: string, filepath: string, forceU
   if (builtClassPath) {
     classpath = classpath.concat(builtClassPath);
   }
+  window.showInformationMessage(`${PLUGIN_NAME} libraries loaded.`);
   return classpath;
 }
 
@@ -44,7 +46,9 @@ export async function getBuiltClasspath(
 
   const cwd = path.dirname(buildFile);
   const buildTool = buildFile.includes('pom') ? TOOL_MVN : TOOL_GRADLE;
-  workspace.showMessage(`${PLUGIN_NAME} project [${path.basename(cwd)}] loading libraries with [${buildTool}]...`);
+  window.showInformationMessage(
+    `${PLUGIN_NAME} project [${path.basename(cwd)}] loading libraries with [${buildTool}]...`,
+  );
   return buildClasspath(storagePath, cwd, buildTool, forceUpdate);
 }
 
@@ -84,7 +88,7 @@ async function buildClasspath(
   } catch (e) {
     // The build tool operation failed for some reason so there's nothing we can do.
     getLogger().warn(`buildClasspath: build tool failed [${cmd}]. Error [${JSON.stringify(e)}]`);
-    workspace.showMessage(`${PLUGIN_NAME} classpath command failed "cd ${cwd} && ${cmd}"`, 'error');
+    window.showErrorMessage(`${PLUGIN_NAME} classpath command failed "cd ${cwd} && ${cmd}"`, 'error');
     deleteClasspathFile(storagePath);
     return null;
   }
