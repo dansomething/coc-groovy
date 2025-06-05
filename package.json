@@ -37,6 +37,7 @@
     "lint": "eslint && prettier --check .",
     "prepare": "npm-run-all clean build",
     "release": "np --no-tests",
+    "update": "ncu --peer --enginesNode",
     "update-gradle-classpath": "./utils/update-gradle-classpath",
     "watch": "webpack --watch"
   },
@@ -59,6 +60,7 @@
     "find-up": "^7.0.0",
     "glob": "^10.4.5",
     "np": "10.2.0",
+    "npm-check-updates": "^18.0.1",
     "npm-run-all": "^4.1.5",
     "path-exists": "^5.0.0",
     "prettier": "^3.5.3",
