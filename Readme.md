@@ -51,6 +51,7 @@ The following settings are supported:
 - `groovy.project.referencedLibraries` : Configure additional paths (jar file or directory) for referencing libraries in a Groovy project. Note, Maven and Gradle projects will have their classpath automatically added.
   - Example: `["/path/to/lib.jar", "/path/to/lib/*"]`
 - `groovy.trace.server` : Traces the communication between the coc-groovy extension and the Groovy language server.
+- `groovy.noRoot` (Experimental): Enables language server features for standalone Groovy files (for when no Maven or Gradle project root is available). Set this in the global CoC configuration. Default: `false`
 
 ## Setting the JDK
 
