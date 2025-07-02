@@ -47,14 +47,14 @@
     "semi": true
   },
   "devDependencies": {
-    "@types/glob": "8.1.0",
+    "@types/glob": "9.0.0",
     "@types/node": "^12.20.55",
-    "@typescript-eslint/eslint-plugin": "^8.33.1",
-    "@typescript-eslint/parser": "^8.33.1",
+    "@typescript-eslint/eslint-plugin": "^8.35.1",
+    "@typescript-eslint/parser": "^8.35.1",
     "coc.nvim": "^0.0.82",
-    "eslint": "^9.28.0",
+    "eslint": "^9.30.1",
     "eslint-config-prettier": "^10.1.5",
-    "eslint-plugin-prettier": "^5.4.1",
+    "eslint-plugin-prettier": "^5.5.1",
     "expand-home-dir": "^0.0.3",
     "find-java-home": "2.0.0",
     "find-up": "^7.0.0",
@@ -63,7 +63,7 @@
     "npm-check-updates": "^18.0.1",
     "npm-run-all": "^4.1.5",
     "path-exists": "^5.0.0",
-    "prettier": "^3.5.3",
+    "prettier": "^3.6.2",
     "rimraf": "^5.0.10",
     "ts-loader": "^9.5.2",
     "typescript": "^4",
@@ -111,6 +111,11 @@
           "default": null,
           "description": "Specifies the folder path to the JDK (8 or more recent) used to launch the Groovy Language Server.\nOn Windows, backslashes must be escaped, i.e.\n\"groovy.home\":\"C:\\\\Program Files\\\\Java\\\\jdk1.8.0_161\"",
           "scope": "window"
+        },
+        "groovy.ls.feature.noRoot": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enables the Groovy language server to provide language features for standalone .groovy files outside of a workspace root."
         },
         "groovy.ls.vmargs": {
           "type": [

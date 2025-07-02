@@ -1,5 +1,13 @@
-import { window } from 'coc.nvim';
-import { commands, ExtensionContext, LanguageClient, Uri, workspace } from 'coc.nvim';
+import {
+  commands,
+  ConfigurationChangeEvent,
+  disposeAll,
+  ExtensionContext,
+  LanguageClient,
+  Uri,
+  window,
+  workspace,
+} from 'coc.nvim';
 import { createHash } from 'crypto';
 import * as path from 'path';
 import { DidChangeConfigurationNotification, Disposable } from 'vscode-languageserver-protocol';
@@ -8,13 +16,15 @@ import { getClientOptions } from './client';
 import * as Commands from './commands';
 import { GROOVY, PLUGIN_NAME } from './constants';
 import { setContext } from './context';
+import { NoRootFeature } from './noroot';
 import { ErrorData, RequirementsData, resolveRequirements } from './requirements';
 import { getServerOptions } from './server';
+import * as Settings from './settings';
 import { getTempWorkspace } from './system';
 
 let languageClient: LanguageClient | null;
-let languageClientDisposable: Disposable;
 let storagePath: string;
+const disposables: Disposable[] = [];
 
 export async function activate(context: ExtensionContext): Promise<void> {
   const config = workspace.getConfiguration(GROOVY);
@@ -41,7 +51,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
 }
 
 export function deactivate(): void {
-  languageClientDisposable.dispose();
+  disposeAll(disposables);
   languageClient = null;
 }
 
@@ -60,11 +70,13 @@ async function startLanguageServer(context: ExtensionContext, requirements: Requ
   const clientOptions = getClientOptions(updateClasspath);
   const serverOptions = await getServerOptions(context, requirements);
   languageClient = new LanguageClient(GROOVY, PLUGIN_NAME, serverOptions, clientOptions);
+  languageClient.registerFeature(new NoRootFeature());
 
   languageClient.onReady().then(
     () => {
       window.showInformationMessage(`${PLUGIN_NAME} started!`);
       registerCommands(context);
+      registerListeners();
     },
     (e) => {
       context.logger.error(e.message);
@@ -72,11 +84,22 @@ async function startLanguageServer(context: ExtensionContext, requirements: Requ
   );
 
   window.showInformationMessage(`${PLUGIN_NAME} starting...`);
-  languageClientDisposable = languageClient.start();
+  disposables.push(languageClient.start());
 }
 
 function registerCommands(context: ExtensionContext): void {
   context.subscriptions.push(commands.registerCommand(Commands.CONFIGURATION_UPDATE, updateProjectConfig));
+}
+
+function registerListeners(): void {
+  workspace.onDidChangeConfiguration(onConfigChange, null, disposables);
+}
+
+function onConfigChange(e: ConfigurationChangeEvent): void {
+  // Language server features are applied at initialization time so feature config changes require a restart.
+  if (e.affectsConfiguration(`${GROOVY}.${Settings.LS_FEATURE_NOROOT}`)) {
+    languageClient?.restart();
+  }
 }
 
 async function updateProjectConfig(): Promise<void> {

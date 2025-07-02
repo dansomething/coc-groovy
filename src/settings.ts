@@ -18,6 +18,11 @@ export const LS_HOME = 'ls.home';
 export const LS_VMARGS = 'ls.vmargs';
 
 /**
+ * Name for the language server fature no root key in the config.
+ */
+export const LS_FEATURE_NOROOT = 'ls.feature.noRoot';
+
+/**
  * Name for the project referenced libraries key in the config.
  */
 export const REFERENCED_LIBRARIES = 'project.referencedLibraries';
